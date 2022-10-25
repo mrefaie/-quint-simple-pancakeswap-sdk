@@ -391,7 +391,9 @@ class PancakeswapPairFactory {
             .shiftedBy(this.toToken.decimals)
             .decimalPlaces(0);
         const hex = (0, hexlify_1.hexlify)(convertedMinTokens);
-        return this._pancakeswapRouterContractFactory.swapExactETHForTokensSupportingFeeOnTransferTokens(ethAmountInWei, hex, routePathArray, this._pancakeswapPairFactoryContext.ethereumAddress, deadline);
+        return this._pancakeswapRouterContractFactory.swapExactETHForTokensSupportingFeeOnTransferTokens(
+        // ethAmountInWei,
+        hex, routePathArray, this._pancakeswapPairFactoryContext.ethereumAddress, deadline);
     }
     /**
      * Generate trade amount erc20 > eth

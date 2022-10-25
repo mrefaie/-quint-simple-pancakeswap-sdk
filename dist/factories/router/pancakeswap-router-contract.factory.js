@@ -17,7 +17,7 @@ class PancakeswapRouterContractFactory {
         this._pancakeswapRouterContract = this._ethersProvider.getContract(JSON.stringify(contract_context_1.ContractContext.routerAbi), contract_context_1.ContractContext.routerAddress);
     }
     addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('addLiquidity', [
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("addLiquidity", [
             tokenA,
             tokenB,
             amountADesired,
@@ -29,7 +29,7 @@ class PancakeswapRouterContractFactory {
         ]);
     }
     addLiquidityETH(token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("addLiquidityETH", [token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline]);
     }
     factory() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -48,16 +48,16 @@ class PancakeswapRouterContractFactory {
         });
     }
     removeLiquidity(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('removeLiquidity', [tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("removeLiquidity", [tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline]);
     }
     removeLiquidityETH(token, liquidity, amountTokenMin, amountETHMin, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('removeLiquidity', [token, liquidity, amountTokenMin, amountETHMin, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("removeLiquidity", [token, liquidity, amountTokenMin, amountETHMin, to, deadline]);
     }
     removeLiquidityETHSupportingFeeOnTransferTokens(token, liquidity, amountTokenMin, amountETHMin, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('removeLiquidityETHSupportingFeeOnTransferTokens', [token, liquidity, amountTokenMin, amountETHMin, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("removeLiquidityETHSupportingFeeOnTransferTokens", [token, liquidity, amountTokenMin, amountETHMin, to, deadline]);
     }
     removeLiquidityETHWithPermit(token, liquidity, amountTokenMin, amountETHMin, to, deadline, approveMax, v, r, s) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('removeLiquidityETHWithPermit', [
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("removeLiquidityETHWithPermit", [
             token,
             liquidity,
             amountTokenMin,
@@ -71,7 +71,7 @@ class PancakeswapRouterContractFactory {
         ]);
     }
     removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(token, liquidity, amountTokenMin, amountETHMin, to, deadline, approveMax, v, r, s) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('removeLiquidityETHWithPermitSupportingFeeOnTransferTokens', [
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("removeLiquidityETHWithPermitSupportingFeeOnTransferTokens", [
             token,
             liquidity,
             amountTokenMin,
@@ -85,7 +85,7 @@ class PancakeswapRouterContractFactory {
         ]);
     }
     removeLiquidityWithPermit(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline, approveMax, v, r, s) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('removeLiquidityWithPermit', [
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("removeLiquidityWithPermit", [
             tokenA,
             tokenB,
             liquidity,
@@ -100,31 +100,31 @@ class PancakeswapRouterContractFactory {
         ]);
     }
     swapExactETHForTokens(amountOutMin, path, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('swapExactETHForTokens', [amountOutMin, path, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("swapExactETHForTokens", [amountOutMin, path, to, deadline]);
     }
     swapETHForExactTokens(amountOut, path, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('swapETHForExactTokens', [amountOut, path, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("swapETHForExactTokens", [amountOut, path, to, deadline]);
     }
-    swapExactETHForTokensSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('swapExactETHForTokensSupportingFeeOnTransferTokens', [amountIn, amountOutMin, path, to, deadline]);
+    swapExactETHForTokensSupportingFeeOnTransferTokens(amountOutMin, path, to, deadline) {
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("swapExactETHForTokensSupportingFeeOnTransferTokens", [amountOutMin, path, to, deadline]);
     }
     swapExactTokensForETH(amountIn, amountOutMin, path, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('swapExactTokensForETH', [amountIn, amountOutMin, path, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("swapExactTokensForETH", [amountIn, amountOutMin, path, to, deadline]);
     }
     swapTokensForExactETH(amountOut, amountInMax, path, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('swapTokensForExactETH', [amountOut, amountInMax, path, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("swapTokensForExactETH", [amountOut, amountInMax, path, to, deadline]);
     }
     swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('swapExactTokensForETHSupportingFeeOnTransferTokens', [amountIn, amountOutMin, path, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("swapExactTokensForETHSupportingFeeOnTransferTokens", [amountIn, amountOutMin, path, to, deadline]);
     }
     swapExactTokensForTokens(amountIn, amountOutMin, path, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('swapExactTokensForTokens', [amountIn, amountOutMin, path, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("swapExactTokensForTokens", [amountIn, amountOutMin, path, to, deadline]);
     }
     swapTokensForExactTokens(amountOut, amountInMax, path, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('swapTokensForExactTokens', [amountOut, amountInMax, path, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("swapTokensForExactTokens", [amountOut, amountInMax, path, to, deadline]);
     }
     swapExactTokensForTokensSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, to, deadline) {
-        return this._pancakeswapRouterContract.interface.encodeFunctionData('swapExactTokensForTokensSupportingFeeOnTransferTokens', [amountIn, amountOutMin, path, to, deadline]);
+        return this._pancakeswapRouterContract.interface.encodeFunctionData("swapExactTokensForTokensSupportingFeeOnTransferTokens", [amountIn, amountOutMin, path, to, deadline]);
     }
 }
 exports.PancakeswapRouterContractFactory = PancakeswapRouterContractFactory;
