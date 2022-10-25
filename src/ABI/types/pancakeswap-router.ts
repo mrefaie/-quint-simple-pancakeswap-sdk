@@ -1,10 +1,10 @@
-import { EthersContractContextV5 } from 'ethereum-abi-types-generator';
+import { EthersContractContextV5 } from "ethereum-abi-types-generator";
 import {
   BigNumber,
   BigNumberish,
   BytesLike as Arrayish,
   ContractTransaction,
-} from 'ethers';
+} from "ethers";
 
 export type ContractContext = EthersContractContextV5<
   PancakeswapRouter,
@@ -56,30 +56,30 @@ export interface ContractCallOverrides {
 export type PancakeswapRouterEvents = undefined;
 export interface PancakeswapRouterEventsContext {}
 export type PancakeswapRouterMethodNames =
-  | 'BNB'
-  | 'addLiquidity'
-  | 'addLiquidityETH'
-  | 'factory'
-  | 'getAmountIn'
-  | 'getAmountOut'
-  | 'getAmountsIn'
-  | 'getAmountsOut'
-  | 'quote'
-  | 'removeLiquidity'
-  | 'removeLiquidityETH'
-  | 'removeLiquidityETHSupportingFeeOnTransferTokens'
-  | 'removeLiquidityETHWithPermit'
-  | 'removeLiquidityETHWithPermitSupportingFeeOnTransferTokens'
-  | 'removeLiquidityWithPermit'
-  | 'swapETHForExactTokens'
-  | 'swapExactETHForTokens'
-  | 'swapExactETHForTokensSupportingFeeOnTransferTokens'
-  | 'swapExactTokensForETH'
-  | 'swapExactTokensForETHSupportingFeeOnTransferTokens'
-  | 'swapExactTokensForTokens'
-  | 'swapExactTokensForTokensSupportingFeeOnTransferTokens'
-  | 'swapTokensForExactETH'
-  | 'swapTokensForExactTokens';
+  | "BNB"
+  | "addLiquidity"
+  | "addLiquidityETH"
+  | "factory"
+  | "getAmountIn"
+  | "getAmountOut"
+  | "getAmountsIn"
+  | "getAmountsOut"
+  | "quote"
+  | "removeLiquidity"
+  | "removeLiquidityETH"
+  | "removeLiquidityETHSupportingFeeOnTransferTokens"
+  | "removeLiquidityETHWithPermit"
+  | "removeLiquidityETHWithPermitSupportingFeeOnTransferTokens"
+  | "removeLiquidityWithPermit"
+  | "swapETHForExactTokens"
+  | "swapExactETHForTokens"
+  | "swapExactETHForTokensSupportingFeeOnTransferTokens"
+  | "swapExactTokensForETH"
+  | "swapExactTokensForETHSupportingFeeOnTransferTokens"
+  | "swapExactTokensForTokens"
+  | "swapExactTokensForTokensSupportingFeeOnTransferTokens"
+  | "swapTokensForExactETH"
+  | "swapTokensForExactTokens";
 export interface PancakeswapRouter {
   /**
    * Payable: false
@@ -411,6 +411,7 @@ export interface PancakeswapRouter {
    * @param deadline Type: uint256, Indexed: false
    */
   swapExactETHForTokensSupportingFeeOnTransferTokens(
+    amountIn: BigNumberish,
     amountOutMin: BigNumberish,
     path: string[],
     to: string,

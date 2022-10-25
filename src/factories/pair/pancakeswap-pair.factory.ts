@@ -1,25 +1,25 @@
-import BigNumber from 'bignumber.js';
-import { Subject } from 'rxjs';
-import { PancakeswapError } from '../..';
-import { Constants } from '../../common/constants';
-import { ContractContext } from '../../common/contract-context';
-import { ErrorCodes } from '../../common/errors/error-codes';
-import { hexlify } from '../../common/utils/hexlify';
-import { parseEther } from '../../common/utils/parse-ether';
-import { toEthersBigNumber } from '../../common/utils/to-ethers-big-number';
-import { getTradePath } from '../../common/utils/trade-path';
-import { TradePath } from '../../enums/trade-path';
-import { BestRouteQuotes } from '../router/models/best-route-quotes';
-import { RouteQuote } from '../router/models/route-quote';
-import { PancakeswapRouterContractFactory } from '../router/pancakeswap-router-contract.factory';
-import { PancakeswapRouterFactory } from '../router/pancakeswap-router.factory';
-import { AllowanceAndBalanceOf } from '../token/models/allowance-balance-of';
-import { Token } from '../token/models/token';
-import { TokenFactory } from '../token/token.factory';
-import { PancakeswapPairFactoryContext } from './models/pancakeswap-pair-factory-context';
-import { TradeContext } from './models/trade-context';
-import { Transaction } from './models/transaction';
-import { PancakeswapPairContractFactory } from './pancakeswap-pair-contract.factory';
+import BigNumber from "bignumber.js";
+import { Subject } from "rxjs";
+import { PancakeswapError } from "../..";
+import { Constants } from "../../common/constants";
+import { ContractContext } from "../../common/contract-context";
+import { ErrorCodes } from "../../common/errors/error-codes";
+import { hexlify } from "../../common/utils/hexlify";
+import { parseEther } from "../../common/utils/parse-ether";
+import { toEthersBigNumber } from "../../common/utils/to-ethers-big-number";
+import { getTradePath } from "../../common/utils/trade-path";
+import { TradePath } from "../../enums/trade-path";
+import { BestRouteQuotes } from "../router/models/best-route-quotes";
+import { RouteQuote } from "../router/models/route-quote";
+import { PancakeswapRouterContractFactory } from "../router/pancakeswap-router-contract.factory";
+import { PancakeswapRouterFactory } from "../router/pancakeswap-router.factory";
+import { AllowanceAndBalanceOf } from "../token/models/allowance-balance-of";
+import { Token } from "../token/models/token";
+import { TokenFactory } from "../token/token.factory";
+import { PancakeswapPairFactoryContext } from "./models/pancakeswap-pair-factory-context";
+import { TradeContext } from "./models/trade-context";
+import { Transaction } from "./models/transaction";
+import { PancakeswapPairContractFactory } from "./pancakeswap-pair-contract.factory";
 
 export class PancakeswapPairFactory {
   private readonly LIQUIDITY_PROVIDER_FEE = 0.003;
@@ -29,9 +29,10 @@ export class PancakeswapPairFactory {
     this._pancakeswapPairFactoryContext.ethersProvider
   );
 
-  private _pancakeswapRouterContractFactory = new PancakeswapRouterContractFactory(
-    this._pancakeswapPairFactoryContext.ethersProvider
-  );
+  private _pancakeswapRouterContractFactory =
+    new PancakeswapRouterContractFactory(
+      this._pancakeswapPairFactoryContext.ethersProvider
+    );
 
   private _pancakeswapPairFactory = new PancakeswapPairContractFactory(
     this._pancakeswapPairFactoryContext.ethersProvider
@@ -222,15 +223,14 @@ export class PancakeswapPairFactory {
    * Has got enough balance to do the trade (eth check only)
    * @param amount The amount you want to swap
    */
-  private async hasGotEnoughBalanceEth(
-    amount: string
-  ): Promise<{
+  private async hasGotEnoughBalanceEth(amount: string): Promise<{
     hasEnough: boolean;
     balance: string;
   }> {
-    const balance = await this._pancakeswapPairFactoryContext.ethersProvider.balanceOf(
-      this._pancakeswapPairFactoryContext.ethereumAddress
-    );
+    const balance =
+      await this._pancakeswapPairFactoryContext.ethersProvider.balanceOf(
+        this._pancakeswapPairFactoryContext.ethereumAddress
+      );
 
     const bigNumberBalance = new BigNumber(balance).shiftedBy(
       Constants.ETH_MAX_DECIMALS * -1
@@ -264,7 +264,7 @@ export class PancakeswapPairFactory {
    */
   public async allowance(): Promise<string> {
     if (this.tradePath() === TradePath.ethToErc20) {
-      return '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+      return "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
     }
 
     const allowance = await this._fromTokenFactory.allowance(
@@ -281,14 +281,14 @@ export class PancakeswapPairFactory {
   public async generateApproveMaxAllowanceData(): Promise<Transaction> {
     if (this.tradePath() === TradePath.ethToErc20) {
       throw new PancakeswapError(
-        'You do not need to generate approve pancakeswap allowance when doing eth > erc20',
+        "You do not need to generate approve pancakeswap allowance when doing eth > erc20",
         ErrorCodes.generateApproveMaxAllowanceDataNotAllowed
       );
     }
 
     const data = this._fromTokenFactory.generateApproveAllowanceData(
       ContractContext.routerAddress,
-      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     );
 
     return {
@@ -356,7 +356,8 @@ export class PancakeswapPairFactory {
       tradeExpires.toString()
     );
 
-    const allowanceAndBalanceOf = await this.getAllowanceAndBalanceOfForFromToken();
+    const allowanceAndBalanceOf =
+      await this.getAllowanceAndBalanceOfForFromToken();
 
     const hasEnoughAllowance = this._hasGotEnoughAllowance(
       erc20Amount.toFixed(),
@@ -422,7 +423,8 @@ export class PancakeswapPairFactory {
       tradeExpires.toString()
     );
 
-    const allowanceAndBalanceOf = await this.getAllowanceAndBalanceOfForFromToken();
+    const allowanceAndBalanceOf =
+      await this.getAllowanceAndBalanceOfForFromToken();
 
     const hasEnoughAllowance = this._hasGotEnoughAllowance(
       erc20Amount.toFixed(),
@@ -482,6 +484,7 @@ export class PancakeswapPairFactory {
     const tradeExpires = this.generateTradeDeadlineUnixTime();
 
     const data = this.generateTradeDataEthToErc20(
+      ethAmount,
       convertQuoteWithSlippage,
       bestRouteQuote.routePathArray,
       tradeExpires.toString()
@@ -520,10 +523,13 @@ export class PancakeswapPairFactory {
    * @param deadline The deadline it expiries unix time
    */
   private generateTradeDataEthToErc20(
+    amountIn: BigNumber,
     tokenAmount: BigNumber,
     routePathArray: string[],
     deadline: string
   ): string {
+    const ethAmountInWei = hexlify(parseEther(amountIn));
+
     // pancakeswap adds extra digits on even if the token is say 8 digits long
     const convertedMinTokens = tokenAmount
       .shiftedBy(this.toToken.decimals)
@@ -531,7 +537,8 @@ export class PancakeswapPairFactory {
 
     const hex = hexlify(convertedMinTokens);
 
-    return this._pancakeswapRouterContractFactory.swapExactETHForTokens(
+    return this._pancakeswapRouterContractFactory.swapExactETHForTokensSupportingFeeOnTransferTokens(
+      ethAmountInWei,
       hex,
       routePathArray,
       this._pancakeswapPairFactoryContext.ethereumAddress,
@@ -559,7 +566,7 @@ export class PancakeswapPairFactory {
 
     const ethAmountOutWei = hexlify(parseEther(ethAmountOutMin));
 
-    return this._pancakeswapRouterContractFactory.swapExactTokensForETH(
+    return this._pancakeswapRouterContractFactory.swapExactTokensForETHSupportingFeeOnTransferTokens(
       hexlify(amountIn),
       ethAmountOutWei,
       routePathArray,
@@ -589,7 +596,7 @@ export class PancakeswapPairFactory {
       .shiftedBy(this.toToken.decimals)
       .decimalPlaces(0);
 
-    return this._pancakeswapRouterContractFactory.swapExactTokensForTokens(
+    return this._pancakeswapRouterContractFactory.swapExactTokensForTokensSupportingFeeOnTransferTokens(
       hexlify(amountIn),
       hexlify(amountMin),
       routePathArray,

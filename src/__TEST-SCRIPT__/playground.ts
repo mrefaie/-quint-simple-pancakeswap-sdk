@@ -1,5 +1,5 @@
-import { PancakeswapPairSettings } from '../factories/pair/models/pancakeswap-pair-settings';
-import { PancakeswapPair } from '../factories/pair/pancakeswap-pair';
+import { PancakeswapPairSettings } from "../factories/pair/models/pancakeswap-pair-settings";
+import { PancakeswapPair } from "../factories/pair/pancakeswap-pair";
 
 // BAT - 0x101d82428437127bf1608f699cd651e6abf9766e
 // UNI - 0xBf5140A22578168FD562DCcF235E5D43A02ce9B1
@@ -7,9 +7,9 @@ import { PancakeswapPair } from '../factories/pair/pancakeswap-pair';
 
 const routeTest = async () => {
   console.log(new Date().getTime());
-  const fromTokenContractAddress = '0x101d82428437127bf1608f699cd651e6abf9766e';
-  const toTokenContractAddress = '0xBf5140A22578168FD562DCcF235E5D43A02ce9B1';
-  const ethereumAddress = '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9';
+  const fromTokenContractAddress = "0x101d82428437127bf1608f699cd651e6abf9766e";
+  const toTokenContractAddress = "0xBf5140A22578168FD562DCcF235E5D43A02ce9B1";
+  const ethereumAddress = "0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9";
 
   const pancakeSwapPair = new PancakeswapPair({
     fromTokenContractAddress,
@@ -28,11 +28,11 @@ const routeTest = async () => {
   const pancakeSwapPairFactory = await pancakeSwapPair.createFactory();
 
   try {
-    const trade = await pancakeSwapPairFactory.trade('10');
+    const trade = await pancakeSwapPairFactory.trade("10");
     console.log(trade);
 
     console.log(new Date().getTime());
-  } catch (error) {
+  } catch (error: any) {
     console.log(error.message);
   }
 

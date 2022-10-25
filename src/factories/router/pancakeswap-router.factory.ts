@@ -1,35 +1,36 @@
-import BigNumber from 'bignumber.js';
+import BigNumber from "bignumber.js";
 import {
   CallReturnContext,
   ContractCallContext,
   ContractCallReturnContext,
   Multicall,
-} from 'ethereum-multicall';
-import { ContractContext } from '../../common/contract-context';
-import { ErrorCodes } from '../../common/errors/error-codes';
-import { PancakeswapError } from '../../common/errors/pancakeswap-error';
-import { BNB } from '../../common/tokens/bnb';
-import { COMP } from '../../common/tokens/comp';
-import { DAI } from '../../common/tokens/dai';
-import { USDC } from '../../common/tokens/usdc';
-import { USDT } from '../../common/tokens/usdt';
-import { formatEther } from '../../common/utils/format-ether';
-import { hexlify } from '../../common/utils/hexlify';
-import { onlyUnique } from '../../common/utils/only-unique';
-import { parseEther } from '../../common/utils/parse-ether';
-import { getTradePath } from '../../common/utils/trade-path';
-import { ChainId } from '../../enums/chain-id';
-import { TradePath } from '../../enums/trade-path';
-import { EthersProvider } from '../../ethers-provider';
-import { Token } from '../token/models/token';
-import { RouterDirection } from './enums/router-direction';
-import { BestRouteQuotes } from './models/best-route-quotes';
-import { RouteQuote } from './models/route-quote';
-import { TokenRoutes } from './models/token-routes';
+} from "ethereum-multicall";
+import { ContractContext } from "../../common/contract-context";
+import { ErrorCodes } from "../../common/errors/error-codes";
+import { PancakeswapError } from "../../common/errors/pancakeswap-error";
+import { BNB } from "../../common/tokens/bnb";
+import { COMP } from "../../common/tokens/comp";
+import { DAI } from "../../common/tokens/dai";
+import { USDC } from "../../common/tokens/usdc";
+import { USDT } from "../../common/tokens/usdt";
+import { formatEther } from "../../common/utils/format-ether";
+import { hexlify } from "../../common/utils/hexlify";
+import { onlyUnique } from "../../common/utils/only-unique";
+import { parseEther } from "../../common/utils/parse-ether";
+import { getTradePath } from "../../common/utils/trade-path";
+import { ChainId } from "../../enums/chain-id";
+import { TradePath } from "../../enums/trade-path";
+import { EthersProvider } from "../../ethers-provider";
+import { Token } from "../token/models/token";
+import { RouterDirection } from "./enums/router-direction";
+import { BestRouteQuotes } from "./models/best-route-quotes";
+import { RouteQuote } from "./models/route-quote";
+import { TokenRoutes } from "./models/token-routes";
 
 export class PancakeswapRouterFactory {
   private _multicall = new Multicall({
     ethersProvider: this._ethersProvider.provider,
+    tryAggregate: true,
   });
 
   constructor(
@@ -63,7 +64,7 @@ export class PancakeswapRouterFactory {
     }
 
     const contractCallContext: ContractCallContext = {
-      reference: 'pancakeswap-pairs',
+      reference: "pancakeswap-pairs",
       contractAddress: ContractContext.pairAddress,
       abi: ContractContext.pairAbi,
       calls: [],
@@ -80,7 +81,7 @@ export class PancakeswapRouterFactory {
 
         contractCallContext.calls.push({
           reference: `${fromToken.contractAddress}-${toToken.contractAddress}-${fromToken.symbol}/${toToken.symbol}`,
-          methodName: 'getPair',
+          methodName: "getPair",
           methodParameters: [
             fromToken.contractAddress,
             toToken.contractAddress,
@@ -93,9 +94,12 @@ export class PancakeswapRouterFactory {
 
     const results = contractCallResults.results[contractCallContext.reference];
 
-    const availablePairs = results.callsReturnContext.filter(
-      (c) => c.returnValues[0] !== '0x0000000000000000000000000000000000000000'
-    );
+    const availablePairs = results.callsReturnContext
+      .filter(
+        (c) =>
+          c.returnValues[0] !== "0x0000000000000000000000000000000000000000"
+      )
+      .filter((c) => c.success !== false);
 
     const fromTokenRoutes: TokenRoutes = {
       token: this._fromToken,
@@ -155,7 +159,7 @@ export class PancakeswapRouterFactory {
     const routes = await this.getAllPossibleRoutes();
 
     const contractCallContext: ContractCallContext<Token[][]> = {
-      reference: 'pancakeswap-route-quotes',
+      reference: "pancakeswap-route-quotes",
       contractAddress: ContractContext.routerAddress,
       abi: ContractContext.routerAbi,
       calls: [],
@@ -167,7 +171,7 @@ export class PancakeswapRouterFactory {
 
       contractCallContext.calls.push({
         reference: `route${i}`,
-        methodName: 'getAmountsOut',
+        methodName: "getAmountsOut",
         methodParameters: [
           tradeAmount,
           routeCombo.map((c) => {
@@ -328,7 +332,7 @@ export class PancakeswapRouterFactory {
     allAvailablePairs: CallReturnContext[]
   ): Token[] {
     const fromRouterDirection = allAvailablePairs.filter(
-      (c) => c.reference.split('-')[0] === token.contractAddress
+      (c) => c.reference.split("-")[0] === token.contractAddress
     );
     const tokens: Token[] = [];
 
@@ -336,7 +340,7 @@ export class PancakeswapRouterFactory {
       const context = fromRouterDirection[index];
       tokens.push(
         this.allTokens.find(
-          (t) => t.contractAddress === context.reference.split('-')[1]
+          (t) => t.contractAddress === context.reference.split("-")[1]
         )!
       );
     }
@@ -349,7 +353,7 @@ export class PancakeswapRouterFactory {
     allAvailablePairs: CallReturnContext[]
   ): Token[] {
     const toRouterDirection = allAvailablePairs.filter(
-      (c) => c.reference.split('-')[1] === token.contractAddress
+      (c) => c.reference.split("-")[1] === token.contractAddress
     );
     const tokens: Token[] = [];
 
@@ -357,7 +361,7 @@ export class PancakeswapRouterFactory {
       const context = toRouterDirection[index];
       tokens.push(
         this.allTokens.find(
-          (t) => t.contractAddress === context.reference.split('-')[0]
+          (t) => t.contractAddress === context.reference.split("-")[0]
         )!
       );
     }
@@ -385,6 +389,10 @@ export class PancakeswapRouterFactory {
       ) {
         const callReturnContext =
           contractCallReturnContext.callsReturnContext[i];
+
+        if (callReturnContext?.success === false) {
+          continue;
+        }
 
         switch (tradePath) {
           case TradePath.ethToErc20:
@@ -458,7 +466,7 @@ export class PancakeswapRouterFactory {
         .map((c: string) => {
           return this.allTokens.find((t) => t.contractAddress === c)!.symbol;
         })
-        .join(' > '),
+        .join(" > "),
       // route array is always in the 1 index of the method parameters
       routePathArray: callReturnContext.methodParameters[1],
     };
@@ -489,7 +497,7 @@ export class PancakeswapRouterFactory {
         .map((c: string) => {
           return this.allTokens.find((t) => t.contractAddress === c)!.symbol;
         })
-        .join(' > '),
+        .join(" > "),
       // route array is always in the 1 index of the method parameters
       routePathArray: callReturnContext.methodParameters[1],
     };

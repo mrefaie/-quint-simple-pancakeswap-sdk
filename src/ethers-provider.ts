@@ -1,8 +1,8 @@
-import { Contract, ContractInterface, providers } from 'ethers';
+import { Contract, ContractInterface, providers } from "ethers";
 
 export class EthersProvider {
   private _ethersProvider: providers.BaseProvider;
-  constructor(providerUrl: string = 'https://bsc-dataseed.binance.org/') {
+  constructor(providerUrl: string = "https://bsc-dataseed.binance.org/") {
     this._ethersProvider = new providers.StaticJsonRpcProvider(providerUrl);
   }
 
@@ -17,7 +17,7 @@ export class EthersProvider {
   ): TGeneratedTypedContext {
     const contract = new Contract(contractAddress, abi, this._ethersProvider);
 
-    return (contract as unknown) as TGeneratedTypedContext;
+    return contract as unknown as TGeneratedTypedContext;
   }
 
   /**

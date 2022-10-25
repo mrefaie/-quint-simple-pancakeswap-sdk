@@ -1,6 +1,6 @@
 {
-  "name": "simple-pancakeswap-sdk",
-  "version": "1.1.0",
+  "name": "@quint/simple-pancakeswap-sdk",
+  "version": "1.2.5",
   "description": "Simple easy to understand SDK for pancakeswap",
   "main": "dist/index.js",
   "scripts": {
@@ -29,7 +29,7 @@
   "homepage": "https://github.com/joshstevens19/simple-pancakeswap-sdk#readme",
   "dependencies": {
     "bignumber.js": "^9.0.1",
-    "ethereum-multicall": "^2.1.0",
+    "ethereum-multicall": "^2.15.0",
     "ethers": "^5.0.26",
     "rxjs": "^6.6.3"
   },
