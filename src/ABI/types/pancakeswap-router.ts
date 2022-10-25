@@ -411,7 +411,6 @@ export interface PancakeswapRouter {
    * @param deadline Type: uint256, Indexed: false
    */
   swapExactETHForTokensSupportingFeeOnTransferTokens(
-    amountIn: BigNumberish,
     amountOutMin: BigNumberish,
     path: string[],
     to: string,

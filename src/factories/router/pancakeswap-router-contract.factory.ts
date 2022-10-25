@@ -1,13 +1,14 @@
-import { BigNumberish, BytesLike } from 'ethers';
-import { ContractContext as RouterContractContext } from '../../ABI/types/pancakeswap-router';
-import { ContractContext } from '../../common/contract-context';
-import { EthersProvider } from '../../ethers-provider';
+import { BigNumberish, BytesLike } from "ethers";
+import { ContractContext as RouterContractContext } from "../../ABI/types/pancakeswap-router";
+import { ContractContext } from "../../common/contract-context";
+import { EthersProvider } from "../../ethers-provider";
 
 export class PancakeswapRouterContractFactory {
-  private _pancakeswapRouterContract = this._ethersProvider.getContract<RouterContractContext>(
-    JSON.stringify(ContractContext.routerAbi),
-    ContractContext.routerAddress
-  );
+  private _pancakeswapRouterContract =
+    this._ethersProvider.getContract<RouterContractContext>(
+      JSON.stringify(ContractContext.routerAbi),
+      ContractContext.routerAddress
+    );
 
   constructor(private _ethersProvider: EthersProvider) {}
 
@@ -22,7 +23,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'addLiquidity',
+      "addLiquidity",
       [
         tokenA,
         tokenB,
@@ -45,7 +46,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'addLiquidityETH',
+      "addLiquidityETH",
       [token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline]
     );
   }
@@ -85,7 +86,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'removeLiquidity',
+      "removeLiquidity",
       [tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline]
     );
   }
@@ -99,7 +100,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'removeLiquidity',
+      "removeLiquidity",
       [token, liquidity, amountTokenMin, amountETHMin, to, deadline]
     );
   }
@@ -113,7 +114,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'removeLiquidityETHSupportingFeeOnTransferTokens',
+      "removeLiquidityETHSupportingFeeOnTransferTokens",
       [token, liquidity, amountTokenMin, amountETHMin, to, deadline]
     );
   }
@@ -131,7 +132,7 @@ export class PancakeswapRouterContractFactory {
     s: BytesLike
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'removeLiquidityETHWithPermit',
+      "removeLiquidityETHWithPermit",
       [
         token,
         liquidity,
@@ -160,7 +161,7 @@ export class PancakeswapRouterContractFactory {
     s: BytesLike
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'removeLiquidityETHWithPermitSupportingFeeOnTransferTokens',
+      "removeLiquidityETHWithPermitSupportingFeeOnTransferTokens",
       [
         token,
         liquidity,
@@ -190,7 +191,7 @@ export class PancakeswapRouterContractFactory {
     s: BytesLike
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'removeLiquidityWithPermit',
+      "removeLiquidityWithPermit",
       [
         tokenA,
         tokenB,
@@ -214,7 +215,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapExactETHForTokens',
+      "swapExactETHForTokens",
       [amountOutMin, path, to, deadline]
     );
   }
@@ -226,21 +227,20 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapETHForExactTokens',
+      "swapETHForExactTokens",
       [amountOut, path, to, deadline]
     );
   }
 
   public swapExactETHForTokensSupportingFeeOnTransferTokens(
-    amountIn: BigNumberish,
     amountOutMin: BigNumberish,
     path: string[],
     to: string,
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapExactETHForTokensSupportingFeeOnTransferTokens',
-      [amountIn, amountOutMin, path, to, deadline]
+      "swapExactETHForTokensSupportingFeeOnTransferTokens",
+      [amountOutMin, path, to, deadline]
     );
   }
 
@@ -252,7 +252,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapExactTokensForETH',
+      "swapExactTokensForETH",
       [amountIn, amountOutMin, path, to, deadline]
     );
   }
@@ -265,7 +265,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapTokensForExactETH',
+      "swapTokensForExactETH",
       [amountOut, amountInMax, path, to, deadline]
     );
   }
@@ -278,7 +278,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapExactTokensForETHSupportingFeeOnTransferTokens',
+      "swapExactTokensForETHSupportingFeeOnTransferTokens",
       [amountIn, amountOutMin, path, to, deadline]
     );
   }
@@ -291,7 +291,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapExactTokensForTokens',
+      "swapExactTokensForTokens",
       [amountIn, amountOutMin, path, to, deadline]
     );
   }
@@ -304,7 +304,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapTokensForExactTokens',
+      "swapTokensForExactTokens",
       [amountOut, amountInMax, path, to, deadline]
     );
   }
@@ -317,7 +317,7 @@ export class PancakeswapRouterContractFactory {
     deadline: BigNumberish
   ): string {
     return this._pancakeswapRouterContract.interface.encodeFunctionData(
-      'swapExactTokensForTokensSupportingFeeOnTransferTokens',
+      "swapExactTokensForTokensSupportingFeeOnTransferTokens",
       [amountIn, amountOutMin, path, to, deadline]
     );
   }

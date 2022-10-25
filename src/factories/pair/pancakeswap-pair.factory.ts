@@ -538,7 +538,7 @@ export class PancakeswapPairFactory {
     const hex = hexlify(convertedMinTokens);
 
     return this._pancakeswapRouterContractFactory.swapExactETHForTokensSupportingFeeOnTransferTokens(
-      ethAmountInWei,
+      // ethAmountInWei,
       hex,
       routePathArray,
       this._pancakeswapPairFactoryContext.ethereumAddress,
