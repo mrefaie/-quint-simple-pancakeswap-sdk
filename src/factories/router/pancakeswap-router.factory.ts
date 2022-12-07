@@ -188,6 +188,43 @@ export class PancakeswapRouterFactory {
     return this.buildRouteQuotesFromResults(results);
   }
 
+  public async getAllPossibleExactOutputRoutesWithQuotes(
+    amountOut: BigNumber
+  ): Promise<RouteQuote[]> {
+    const tradeOutputAmount = this.formatAmountToOutput(amountOut);
+
+    const routes = await this.getAllPossibleRoutes();
+
+    const contractCallContext: ContractCallContext<Token[][]> = {
+      reference: "pancakeswap-exact-output-route-quotes",
+      contractAddress: ContractContext.routerAddress,
+      abi: ContractContext.routerAbi,
+      calls: [],
+      context: routes,
+    };
+
+    for (let i = 0; i < routes.length; i++) {
+      const routeCombo = routes[i];
+
+      contractCallContext.calls.push({
+        reference: `route${i}`,
+        methodName: "getAmountsIn",
+        methodParameters: [
+          tradeOutputAmount,
+          routeCombo.map((c) => {
+            return c.contractAddress;
+          }),
+        ],
+      });
+    }
+
+    const contractCallResults = await this._multicall.call(contractCallContext);
+
+    const results = contractCallResults.results[contractCallContext.reference];
+
+    return this.buildExactOutputRouteQuotesFromResults(results);
+  }
+
   /**
    * Finds the best route
    * @param amountToTrade The amount they want to trade
@@ -196,6 +233,36 @@ export class PancakeswapRouterFactory {
     amountToTrade: BigNumber
   ): Promise<BestRouteQuotes> {
     const allRoutes = await this.getAllPossibleRoutesWithQuotes(amountToTrade);
+    if (allRoutes.length === 0) {
+      throw new PancakeswapError(
+        `No routes found for ${this._fromToken.contractAddress} > ${this._toToken.contractAddress}`,
+        ErrorCodes.noRoutesFound
+      );
+    }
+
+    return {
+      bestRouteQuote: allRoutes[0],
+      triedRoutesQuote: allRoutes.map((route) => {
+        return {
+          expectedConvertQuote: route.expectedConvertQuote,
+          routePathArrayTokenMap: route.routePathArrayTokenMap,
+          routeText: route.routeText,
+          routePathArray: route.routePathArray,
+        };
+      }),
+    };
+  }
+
+  /**
+   * Finds the best route
+   * @param amountOut The amount they want to output
+   */
+  public async findBestExactOutputRoute(
+    amountOut: BigNumber
+  ): Promise<BestRouteQuotes> {
+    const allRoutes = await this.getAllPossibleExactOutputRoutesWithQuotes(
+      amountOut
+    );
     if (allRoutes.length === 0) {
       throw new PancakeswapError(
         `No routes found for ${this._fromToken.contractAddress} > ${this._toToken.contractAddress}`,
@@ -504,6 +571,142 @@ export class PancakeswapRouterFactory {
   }
 
   /**
+   * Build up route quotes from results
+   * @param pancakeswapFactoryContext The pancakeswap factory context
+   * @param contractCallReturnContext The contract call return context
+   */
+  private buildExactOutputRouteQuotesFromResults(
+    contractCallReturnContext: ContractCallReturnContext
+  ): RouteQuote[] {
+    const tradePath = this.tradePath();
+
+    const result: RouteQuote[] = [];
+
+    if (contractCallReturnContext) {
+      for (
+        let i = 0;
+        i < contractCallReturnContext.callsReturnContext.length;
+        i++
+      ) {
+        const callReturnContext =
+          contractCallReturnContext.callsReturnContext[i];
+
+        if (callReturnContext?.success === false) {
+          continue;
+        }
+
+        switch (tradePath) {
+          case TradePath.ethToErc20:
+            result.push(
+              this.buildExactOutputRouteQuoteForEthToErc20(callReturnContext)
+            );
+            break;
+          case TradePath.erc20ToEth:
+            result.push(
+              this.buildExactOutputRouteQuoteForErc20ToEth(callReturnContext)
+            );
+            break;
+          case TradePath.erc20ToErc20:
+            result.push(
+              this.buildExactOutputRouteQuoteForErc20ToErc20(callReturnContext)
+            );
+            break;
+          default:
+            throw new PancakeswapError(
+              `${tradePath} not found`,
+              ErrorCodes.tradePathIsNotSupported
+            );
+        }
+      }
+
+      return result.sort((a, b) => {
+        if (
+          new BigNumber(a.expectedConvertQuote).isGreaterThan(
+            b.expectedConvertQuote
+          )
+        ) {
+          return -1;
+        }
+        return new BigNumber(a.expectedConvertQuote).isLessThan(
+          b.expectedConvertQuote
+        )
+          ? 1
+          : 0;
+      });
+    }
+
+    return result;
+  }
+
+  /**
+   * Build up the route quote for erc20 > erc20
+   * @param callReturnContext The call return context
+   */
+  private buildExactOutputRouteQuoteForErc20ToErc20(
+    callReturnContext: CallReturnContext
+  ): RouteQuote {
+    return this.buildExactOutputRouteQuoteForEthToErc20(callReturnContext);
+  }
+
+  /**
+   * Build up route quote for eth > erc20
+   * @param callReturnContext The call return context
+   */
+  private buildExactOutputRouteQuoteForEthToErc20(
+    callReturnContext: CallReturnContext
+  ): RouteQuote {
+    const convertQuoteUnformatted = new BigNumber(
+      callReturnContext.returnValues[0].hex
+    );
+    return {
+      expectedConvertQuote: convertQuoteUnformatted
+        .shiftedBy(this._fromToken.decimals * -1)
+        .toFixed(this._fromToken.decimals),
+      routePathArrayTokenMap: callReturnContext.methodParameters[1].map(
+        (c: string) => {
+          return this.allTokens.find((t) => t.contractAddress === c);
+        }
+      ),
+      routeText: callReturnContext.methodParameters[1]
+        .map((c: string) => {
+          return this.allTokens.find((t) => t.contractAddress === c)!.symbol;
+        })
+        .join(" > "),
+      // route array is always in the 1 index of the method parameters
+      routePathArray: callReturnContext.methodParameters[1],
+    };
+  }
+
+  /**
+   * Build up the route quote for erc20 > eth
+   * @param callReturnContext The call return context
+   */
+  private buildExactOutputRouteQuoteForErc20ToEth(
+    callReturnContext: CallReturnContext
+  ): RouteQuote {
+    const convertQuoteUnformatted = new BigNumber(
+      callReturnContext.returnValues[0].hex
+    );
+    return {
+      expectedConvertQuote: new BigNumber(
+        formatEther(convertQuoteUnformatted)
+      ).toFixed(this._fromToken.decimals),
+      routePathArrayTokenMap: callReturnContext.methodParameters[1].map(
+        (c: string) => {
+          return this.allTokens.find((t) => t.contractAddress === c);
+        }
+      ),
+      routeText: callReturnContext.methodParameters[1]
+        .map((c: string) => {
+          return this.allTokens.find((t) => t.contractAddress === c)!.symbol;
+        })
+        .join(" > "),
+      // route array is always in the 1 index of the method parameters
+      routePathArray: callReturnContext.methodParameters[1],
+    };
+  }
+
+  /**
    * Format amount to trade into callable formats
    * @param amountToTrade The amount to trade
    * @param pancakeswapFactoryContext The pancakeswap factory context
@@ -516,6 +719,27 @@ export class PancakeswapRouterFactory {
       case TradePath.erc20ToEth:
       case TradePath.erc20ToErc20:
         return hexlify(amountToTrade.shiftedBy(this._fromToken.decimals));
+      default:
+        throw new PancakeswapError(
+          `Internal trade path ${this.tradePath()} is not supported`,
+          ErrorCodes.tradePathIsNotSupported
+        );
+    }
+  }
+
+  /**
+   * Format trade output amount into callable formats
+   * @param amountOut The amount to output
+   * @param pancakeswapFactoryContext The pancakeswap factory context
+   */
+  private formatAmountToOutput(amountOut: BigNumber): string {
+    switch (this.tradePath()) {
+      case TradePath.ethToErc20:
+        const amountOutWei = parseEther(amountOut);
+        return hexlify(amountOutWei);
+      case TradePath.erc20ToEth:
+      case TradePath.erc20ToErc20:
+        return hexlify(amountOut.shiftedBy(this._toToken.decimals));
       default:
         throw new PancakeswapError(
           `Internal trade path ${this.tradePath()} is not supported`,

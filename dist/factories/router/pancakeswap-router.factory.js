@@ -143,6 +143,35 @@ class PancakeswapRouterFactory {
             return this.buildRouteQuotesFromResults(results);
         });
     }
+    getAllPossibleExactOutputRoutesWithQuotes(amountOut) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tradeOutputAmount = this.formatAmountToOutput(amountOut);
+            const routes = yield this.getAllPossibleRoutes();
+            const contractCallContext = {
+                reference: "pancakeswap-exact-output-route-quotes",
+                contractAddress: contract_context_1.ContractContext.routerAddress,
+                abi: contract_context_1.ContractContext.routerAbi,
+                calls: [],
+                context: routes,
+            };
+            for (let i = 0; i < routes.length; i++) {
+                const routeCombo = routes[i];
+                contractCallContext.calls.push({
+                    reference: `route${i}`,
+                    methodName: "getAmountsIn",
+                    methodParameters: [
+                        tradeOutputAmount,
+                        routeCombo.map((c) => {
+                            return c.contractAddress;
+                        }),
+                    ],
+                });
+            }
+            const contractCallResults = yield this._multicall.call(contractCallContext);
+            const results = contractCallResults.results[contractCallContext.reference];
+            return this.buildExactOutputRouteQuotesFromResults(results);
+        });
+    }
     /**
      * Finds the best route
      * @param amountToTrade The amount they want to trade
@@ -150,6 +179,29 @@ class PancakeswapRouterFactory {
     findBestRoute(amountToTrade) {
         return __awaiter(this, void 0, void 0, function* () {
             const allRoutes = yield this.getAllPossibleRoutesWithQuotes(amountToTrade);
+            if (allRoutes.length === 0) {
+                throw new pancakeswap_error_1.PancakeswapError(`No routes found for ${this._fromToken.contractAddress} > ${this._toToken.contractAddress}`, error_codes_1.ErrorCodes.noRoutesFound);
+            }
+            return {
+                bestRouteQuote: allRoutes[0],
+                triedRoutesQuote: allRoutes.map((route) => {
+                    return {
+                        expectedConvertQuote: route.expectedConvertQuote,
+                        routePathArrayTokenMap: route.routePathArrayTokenMap,
+                        routeText: route.routeText,
+                        routePathArray: route.routePathArray,
+                    };
+                }),
+            };
+        });
+    }
+    /**
+     * Finds the best route
+     * @param amountOut The amount they want to output
+     */
+    findBestExactOutputRoute(amountOut) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const allRoutes = yield this.getAllPossibleExactOutputRoutesWithQuotes(amountOut);
             if (allRoutes.length === 0) {
                 throw new pancakeswap_error_1.PancakeswapError(`No routes found for ${this._fromToken.contractAddress} > ${this._toToken.contractAddress}`, error_codes_1.ErrorCodes.noRoutesFound);
             }
@@ -335,6 +387,94 @@ class PancakeswapRouterFactory {
         };
     }
     /**
+     * Build up route quotes from results
+     * @param pancakeswapFactoryContext The pancakeswap factory context
+     * @param contractCallReturnContext The contract call return context
+     */
+    buildExactOutputRouteQuotesFromResults(contractCallReturnContext) {
+        const tradePath = this.tradePath();
+        const result = [];
+        if (contractCallReturnContext) {
+            for (let i = 0; i < contractCallReturnContext.callsReturnContext.length; i++) {
+                const callReturnContext = contractCallReturnContext.callsReturnContext[i];
+                if ((callReturnContext === null || callReturnContext === void 0 ? void 0 : callReturnContext.success) === false) {
+                    continue;
+                }
+                switch (tradePath) {
+                    case trade_path_2.TradePath.ethToErc20:
+                        result.push(this.buildExactOutputRouteQuoteForEthToErc20(callReturnContext));
+                        break;
+                    case trade_path_2.TradePath.erc20ToEth:
+                        result.push(this.buildExactOutputRouteQuoteForErc20ToEth(callReturnContext));
+                        break;
+                    case trade_path_2.TradePath.erc20ToErc20:
+                        result.push(this.buildExactOutputRouteQuoteForErc20ToErc20(callReturnContext));
+                        break;
+                    default:
+                        throw new pancakeswap_error_1.PancakeswapError(`${tradePath} not found`, error_codes_1.ErrorCodes.tradePathIsNotSupported);
+                }
+            }
+            return result.sort((a, b) => {
+                if (new bignumber_js_1.default(a.expectedConvertQuote).isGreaterThan(b.expectedConvertQuote)) {
+                    return -1;
+                }
+                return new bignumber_js_1.default(a.expectedConvertQuote).isLessThan(b.expectedConvertQuote)
+                    ? 1
+                    : 0;
+            });
+        }
+        return result;
+    }
+    /**
+     * Build up the route quote for erc20 > erc20
+     * @param callReturnContext The call return context
+     */
+    buildExactOutputRouteQuoteForErc20ToErc20(callReturnContext) {
+        return this.buildExactOutputRouteQuoteForEthToErc20(callReturnContext);
+    }
+    /**
+     * Build up route quote for eth > erc20
+     * @param callReturnContext The call return context
+     */
+    buildExactOutputRouteQuoteForEthToErc20(callReturnContext) {
+        const convertQuoteUnformatted = new bignumber_js_1.default(callReturnContext.returnValues[0].hex);
+        return {
+            expectedConvertQuote: convertQuoteUnformatted
+                .shiftedBy(this._fromToken.decimals * -1)
+                .toFixed(this._fromToken.decimals),
+            routePathArrayTokenMap: callReturnContext.methodParameters[1].map((c) => {
+                return this.allTokens.find((t) => t.contractAddress === c);
+            }),
+            routeText: callReturnContext.methodParameters[1]
+                .map((c) => {
+                return this.allTokens.find((t) => t.contractAddress === c).symbol;
+            })
+                .join(" > "),
+            // route array is always in the 1 index of the method parameters
+            routePathArray: callReturnContext.methodParameters[1],
+        };
+    }
+    /**
+     * Build up the route quote for erc20 > eth
+     * @param callReturnContext The call return context
+     */
+    buildExactOutputRouteQuoteForErc20ToEth(callReturnContext) {
+        const convertQuoteUnformatted = new bignumber_js_1.default(callReturnContext.returnValues[0].hex);
+        return {
+            expectedConvertQuote: new bignumber_js_1.default((0, format_ether_1.formatEther)(convertQuoteUnformatted)).toFixed(this._fromToken.decimals),
+            routePathArrayTokenMap: callReturnContext.methodParameters[1].map((c) => {
+                return this.allTokens.find((t) => t.contractAddress === c);
+            }),
+            routeText: callReturnContext.methodParameters[1]
+                .map((c) => {
+                return this.allTokens.find((t) => t.contractAddress === c).symbol;
+            })
+                .join(" > "),
+            // route array is always in the 1 index of the method parameters
+            routePathArray: callReturnContext.methodParameters[1],
+        };
+    }
+    /**
      * Format amount to trade into callable formats
      * @param amountToTrade The amount to trade
      * @param pancakeswapFactoryContext The pancakeswap factory context
@@ -347,6 +487,23 @@ class PancakeswapRouterFactory {
             case trade_path_2.TradePath.erc20ToEth:
             case trade_path_2.TradePath.erc20ToErc20:
                 return (0, hexlify_1.hexlify)(amountToTrade.shiftedBy(this._fromToken.decimals));
+            default:
+                throw new pancakeswap_error_1.PancakeswapError(`Internal trade path ${this.tradePath()} is not supported`, error_codes_1.ErrorCodes.tradePathIsNotSupported);
+        }
+    }
+    /**
+     * Format trade output amount into callable formats
+     * @param amountOut The amount to output
+     * @param pancakeswapFactoryContext The pancakeswap factory context
+     */
+    formatAmountToOutput(amountOut) {
+        switch (this.tradePath()) {
+            case trade_path_2.TradePath.ethToErc20:
+                const amountOutWei = (0, parse_ether_1.parseEther)(amountOut);
+                return (0, hexlify_1.hexlify)(amountOutWei);
+            case trade_path_2.TradePath.erc20ToEth:
+            case trade_path_2.TradePath.erc20ToErc20:
+                return (0, hexlify_1.hexlify)(amountOut.shiftedBy(this._toToken.decimals));
             default:
                 throw new pancakeswap_error_1.PancakeswapError(`Internal trade path ${this.tradePath()} is not supported`, error_codes_1.ErrorCodes.tradePathIsNotSupported);
         }

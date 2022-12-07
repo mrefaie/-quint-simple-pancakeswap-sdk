@@ -34,6 +34,11 @@ export declare class PancakeswapPairFactory {
      */
     private executeTradePath;
     /**
+     * Execute the trade path
+     * @param amountOut The amount
+     */
+    private executeTradeExactOutputPath;
+    /**
      * Destroy the trade instance watchers + subscriptions
      */
     private destroy;
@@ -43,6 +48,12 @@ export declare class PancakeswapPairFactory {
      * @amount The amount you want to swap, this is the FROM token amount.
      */
     trade(amount: string): Promise<TradeContext>;
+    /**
+     * Generate trade - this will return amount but you still need to send the transaction
+     * if you want it to be executed on the blockchain
+     * @amount The amount you want to swap, this is the FROM token amount.
+     */
+    tradeExactOutput(amountOut: string): Promise<TradeContext>;
     /**
      * Route getter
      */
@@ -111,6 +122,21 @@ export declare class PancakeswapPairFactory {
      */
     private getTokenTradeAmountErc20ToErc20;
     /**
+     * Get the token trade amount for erc20 > eth
+     * @param amount The amount
+     */
+    private getTokenTradeAmountExactOutputErc20ToEth;
+    /**
+     * Gets how much token they will get for their trade minus all fees
+     * @param ethAmount The eth amount
+     */
+    private getTokenTradeAmountExactOutputEthToErc20;
+    /**
+     * Get the token trade amount for erc20 > erc20
+     * @param amount The amount
+     */
+    private getTokenTradeAmountExactOutputErc20ToErc20;
+    /**
      * finds the best price and path for Erc20ToEth
      * @param amount the erc20Token amount being sent
      */
@@ -125,6 +151,21 @@ export declare class PancakeswapPairFactory {
      * @param ethAmount The eth amount
      */
     private findBestPriceAndPathEthToErc20;
+    /**
+     * finds the best price and path for Erc20ToEth
+     * @param amount the erc20Token amount being sent
+     */
+    private findBestPriceAndPathExactOutputErc20ToEth;
+    /**
+     * finds the best price and path for Erc20ToErc20
+     * @param amount the erc20Token amount being sent
+     */
+    private findBestPriceAndPathExactOutputErc20ToErc20;
+    /**
+     * Find the best price and route path to take (will round down the slippage)
+     * @param ethAmount The eth amount
+     */
+    private findBestPriceAndPathExactOutputEthToErc20;
     /**
      * Generate trade data eth > erc20
      * @param tokenAmount The token amount
@@ -148,6 +189,29 @@ export declare class PancakeswapPairFactory {
      * @param deadline The deadline it expiries unix time
      */
     private generateTradeDataErc20ToErc20;
+    /**
+     * Generate trade data eth > erc20
+     * @param tokenAmount The token amount
+     * @param routePath The route path
+     * @param deadline The deadline it expiries unix time
+     */
+    private generateTradeDataExactOutputEthToErc20;
+    /**
+     * Generate trade amount erc20 > eth
+     * @param tokenAmount The token amount
+     * @param ethAmountOutMin The min eth in eth not wei this converts it
+     * @param routePathArray The route path array
+     * @param deadline The deadline it expiries unix time
+     */
+    private generateTradeDataExactOutputErc20ToEth;
+    /**
+     * Generate trade amount erc20 > erc20
+     * @param tokenAmount The token amount
+     * @param tokenAmountOut The min token amount out
+     * @param routePathArray The route path array
+     * @param deadline The deadline it expiries unix time
+     */
+    private generateTradeDataExactOutputErc20ToErc20;
     /**
      * Build up a transaction for erc20 from
      * @param data The data

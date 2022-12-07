@@ -94,11 +94,33 @@ export class PancakeswapPairFactory {
   }
 
   /**
+   * Execute the trade path
+   * @param amountOut The amount
+   */
+  private async executeTradeExactOutputPath(
+    amountOut: BigNumber
+  ): Promise<TradeContext> {
+    switch (this.tradePath()) {
+      case TradePath.erc20ToEth:
+        return await this.getTokenTradeAmountExactOutputErc20ToEth(amountOut);
+      case TradePath.ethToErc20:
+        return await this.getTokenTradeAmountExactOutputEthToErc20(amountOut);
+      case TradePath.erc20ToErc20:
+        return await this.getTokenTradeAmountExactOutputErc20ToErc20(amountOut);
+      default:
+        throw new PancakeswapError(
+          `${this.tradePath()} is not defined`,
+          ErrorCodes.tradePathIsNotSupported
+        );
+    }
+  }
+
+  /**
    * Destroy the trade instance watchers + subscriptions
    */
   private destroy(): void {
     for (let i = 0; i < this._quoteChanged$.observers.length; i++) {
-      this._quoteChanged$.observers[i].complete();
+      this._quoteChanged$?.observers[i]?.complete();
     }
 
     if (this._quoteChangeTimeout) {
@@ -118,7 +140,24 @@ export class PancakeswapPairFactory {
       new BigNumber(amount)
     );
 
-    this.watchTradePrice(tradeContext);
+    // this.watchTradePrice(tradeContext);
+
+    return tradeContext;
+  }
+
+  /**
+   * Generate trade - this will return amount but you still need to send the transaction
+   * if you want it to be executed on the blockchain
+   * @amount The amount you want to swap, this is the FROM token amount.
+   */
+  public async tradeExactOutput(amountOut: string): Promise<TradeContext> {
+    this.destroy();
+
+    const tradeContext: TradeContext = await this.executeTradeExactOutputPath(
+      new BigNumber(amountOut)
+    );
+
+    // this.watchTradePrice(tradeContext);
 
     return tradeContext;
   }
@@ -330,6 +369,36 @@ export class PancakeswapPairFactory {
   }
 
   /**
+   * Get the token trade amount for erc20 > eth
+   * @param amount The amount
+   */
+  private async getTokenTradeAmountExactOutputErc20ToEth(
+    amount: BigNumber
+  ): Promise<TradeContext> {
+    return await this.findBestPriceAndPathExactOutputErc20ToEth(amount);
+  }
+
+  /**
+   * Gets how much token they will get for their trade minus all fees
+   * @param ethAmount The eth amount
+   */
+  private async getTokenTradeAmountExactOutputEthToErc20(
+    ethAmount: BigNumber
+  ): Promise<TradeContext> {
+    return await this.findBestPriceAndPathExactOutputEthToErc20(ethAmount);
+  }
+
+  /**
+   * Get the token trade amount for erc20 > erc20
+   * @param amount The amount
+   */
+  private async getTokenTradeAmountExactOutputErc20ToErc20(
+    amount: BigNumber
+  ): Promise<TradeContext> {
+    return await this.findBestPriceAndPathExactOutputErc20ToErc20(amount);
+  }
+
+  /**
    * finds the best price and path for Erc20ToEth
    * @param amount the erc20Token amount being sent
    */
@@ -517,6 +586,224 @@ export class PancakeswapPairFactory {
   }
 
   /**
+   * finds the best price and path for Erc20ToEth
+   * @param amount the erc20Token amount being sent
+   */
+  private async findBestPriceAndPathExactOutputErc20ToEth(
+    EthOutputAmount: BigNumber
+  ): Promise<TradeContext> {
+    const bestRouteQuotes = await this._routes.findBestExactOutputRoute(
+      EthOutputAmount
+    );
+    const bestRouteQuote = bestRouteQuotes.bestRouteQuote;
+
+    const quotedErc20Amount = EthOutputAmount.div(
+      bestRouteQuote.expectedConvertQuote
+    );
+
+    const quotedErc20AmountWithSlippage = new BigNumber(quotedErc20Amount).plus(
+      new BigNumber(quotedErc20Amount)
+        .times(this._pancakeswapPairFactoryContext.settings.slippage)
+        .toFixed(this.fromToken.decimals)
+    );
+
+    const convertQuoteWithSlippage = new BigNumber(EthOutputAmount).div(
+      quotedErc20AmountWithSlippage
+    );
+
+    const tradeExpires = this.generateTradeDeadlineUnixTime();
+
+    const data = this.generateTradeDataExactOutputErc20ToEth(
+      quotedErc20AmountWithSlippage,
+      EthOutputAmount,
+      bestRouteQuote.routePathArray,
+      tradeExpires.toString()
+    );
+
+    const allowanceAndBalanceOf =
+      await this.getAllowanceAndBalanceOfForFromToken();
+
+    const hasEnoughAllowance = this._hasGotEnoughAllowance(
+      quotedErc20Amount.toFixed(),
+      allowanceAndBalanceOf.allowance
+    );
+
+    const tradeContext: TradeContext = {
+      baseConvertRequest: EthOutputAmount.toFixed(),
+      minAmountConvertQuote: "0",
+      expectedConvertQuote: convertQuoteWithSlippage.toFixed(),
+      liquidityProviderFee: quotedErc20AmountWithSlippage
+        .times(this.LIQUIDITY_PROVIDER_FEE)
+        .toFixed(this.fromToken.decimals),
+      tradeExpires,
+      routePathTokenMap: bestRouteQuote.routePathArrayTokenMap,
+      routeText: bestRouteQuote.routeText,
+      routePath: bestRouteQuote.routePathArray,
+      hasEnoughAllowance,
+      approvalTransaction: !hasEnoughAllowance
+        ? await this.generateApproveMaxAllowanceData()
+        : undefined,
+      toToken: this.toToken,
+      fromToken: this.fromToken,
+      fromBalance: this.hasGotEnoughBalanceErc20(
+        quotedErc20AmountWithSlippage.toFixed(),
+        allowanceAndBalanceOf.balanceOf
+      ),
+      transaction: this.buildUpTransactionErc20(data),
+      allTriedRoutesQuotes: bestRouteQuotes.triedRoutesQuote,
+      quoteChanged$: this._quoteChanged$,
+      destroy: () => this.destroy(),
+    };
+
+    return tradeContext;
+  }
+
+  /**
+   * finds the best price and path for Erc20ToErc20
+   * @param amount the erc20Token amount being sent
+   */
+  private async findBestPriceAndPathExactOutputErc20ToErc20(
+    erc20OutputAmount: BigNumber
+  ): Promise<TradeContext> {
+    const bestRouteQuotes = await this._routes.findBestExactOutputRoute(
+      erc20OutputAmount
+    );
+    const bestRouteQuote = bestRouteQuotes.bestRouteQuote;
+
+    const quotedErc20Amount = erc20OutputAmount.div(
+      bestRouteQuote.expectedConvertQuote
+    );
+
+    const quotedErc20AmountWithSlippage = new BigNumber(quotedErc20Amount).plus(
+      new BigNumber(quotedErc20Amount)
+        .times(this._pancakeswapPairFactoryContext.settings.slippage)
+        .toFixed(this.fromToken.decimals)
+    );
+
+    const convertQuoteWithSlippage = new BigNumber(erc20OutputAmount).div(
+      quotedErc20AmountWithSlippage
+    );
+
+    const tradeExpires = this.generateTradeDeadlineUnixTime();
+
+    const data = this.generateTradeDataExactOutputErc20ToErc20(
+      quotedErc20AmountWithSlippage,
+      erc20OutputAmount,
+      bestRouteQuote.routePathArray,
+      tradeExpires.toString()
+    );
+
+    const allowanceAndBalanceOf =
+      await this.getAllowanceAndBalanceOfForFromToken();
+
+    const hasEnoughAllowance = this._hasGotEnoughAllowance(
+      quotedErc20AmountWithSlippage.toFixed(),
+      allowanceAndBalanceOf.allowance
+    );
+
+    const tradeContext: TradeContext = {
+      baseConvertRequest: erc20OutputAmount.toFixed(),
+      minAmountConvertQuote: "0",
+      expectedConvertQuote: convertQuoteWithSlippage.toFixed(),
+      liquidityProviderFee: quotedErc20AmountWithSlippage
+        .times(this.LIQUIDITY_PROVIDER_FEE)
+        .toFixed(this.fromToken.decimals),
+      tradeExpires,
+      routePathTokenMap: bestRouteQuote.routePathArrayTokenMap,
+      routeText: bestRouteQuote.routeText,
+      routePath: bestRouteQuote.routePathArray,
+      hasEnoughAllowance,
+      approvalTransaction: !hasEnoughAllowance
+        ? await this.generateApproveMaxAllowanceData()
+        : undefined,
+      toToken: this.toToken,
+      fromToken: this.fromToken,
+      fromBalance: this.hasGotEnoughBalanceErc20(
+        quotedErc20AmountWithSlippage.toFixed(),
+        allowanceAndBalanceOf.balanceOf
+      ),
+      transaction: this.buildUpTransactionErc20(data),
+      allTriedRoutesQuotes: bestRouteQuotes.triedRoutesQuote,
+      quoteChanged$: this._quoteChanged$,
+      destroy: () => this.destroy(),
+    };
+
+    return tradeContext;
+  }
+
+  /**
+   * Find the best price and route path to take (will round down the slippage)
+   * @param ethAmount The eth amount
+   */
+  private async findBestPriceAndPathExactOutputEthToErc20(
+    erc20OutputAmount: BigNumber
+  ): Promise<TradeContext> {
+    const bestRouteQuotes = await this._routes.findBestExactOutputRoute(
+      erc20OutputAmount
+    );
+    const bestRouteQuote = bestRouteQuotes.bestRouteQuote;
+
+    const quotedEthAmount = erc20OutputAmount.div(
+      bestRouteQuote.expectedConvertQuote
+    );
+
+    const quotedEthAmountWithSlippage = new BigNumber(quotedEthAmount).plus(
+      new BigNumber(quotedEthAmount)
+        .times(this._pancakeswapPairFactoryContext.settings.slippage)
+        .toFixed(this.fromToken.decimals)
+    );
+
+    const convertQuoteWithSlippage = new BigNumber(erc20OutputAmount).div(
+      quotedEthAmountWithSlippage
+    );
+
+    // const convertQuoteWithSlippage = new BigNumber(
+    //   bestRouteQuote.expectedConvertQuote
+    // ).minus(
+    //   new BigNumber(bestRouteQuote.expectedConvertQuote)
+    //     .times(this._pancakeswapPairFactoryContext.settings.slippage)
+    //     .toFixed(this.toToken.decimals)
+    // );
+
+    const tradeExpires = this.generateTradeDeadlineUnixTime();
+
+    const data = this.generateTradeDataExactOutputEthToErc20(
+      quotedEthAmountWithSlippage,
+      erc20OutputAmount,
+      bestRouteQuote.routePathArray,
+      tradeExpires.toString()
+    );
+
+    const tradeContext: TradeContext = {
+      baseConvertRequest: erc20OutputAmount.toFixed(),
+      minAmountConvertQuote: "0",
+      expectedConvertQuote: convertQuoteWithSlippage.toFixed(),
+      liquidityProviderFee: quotedEthAmountWithSlippage
+        .times(this.LIQUIDITY_PROVIDER_FEE)
+        .toFixed(this.fromToken.decimals),
+      tradeExpires,
+      routePathTokenMap: bestRouteQuote.routePathArrayTokenMap,
+      routeText: bestRouteQuote.routeText,
+      routePath: bestRouteQuote.routePathArray,
+      hasEnoughAllowance: true,
+      toToken: this.toToken,
+      fromToken: this.fromToken,
+      fromBalance: await this.hasGotEnoughBalanceEth(
+        quotedEthAmountWithSlippage.toFixed()
+      ),
+      transaction: this.buildUpTransactionEth(
+        quotedEthAmountWithSlippage,
+        data
+      ),
+      allTriedRoutesQuotes: bestRouteQuotes.triedRoutesQuote,
+      quoteChanged$: this._quoteChanged$,
+      destroy: () => this.destroy(),
+    };
+
+    return tradeContext;
+  }
+
+  /**
    * Generate trade data eth > erc20
    * @param tokenAmount The token amount
    * @param routePath The route path
@@ -599,6 +886,95 @@ export class PancakeswapPairFactory {
     return this._pancakeswapRouterContractFactory.swapExactTokensForTokensSupportingFeeOnTransferTokens(
       hexlify(amountIn),
       hexlify(amountMin),
+      routePathArray,
+      this._pancakeswapPairFactoryContext.ethereumAddress,
+      deadline
+    );
+  }
+
+  /**
+   * Generate trade data eth > erc20
+   * @param tokenAmount The token amount
+   * @param routePath The route path
+   * @param deadline The deadline it expiries unix time
+   */
+  private generateTradeDataExactOutputEthToErc20(
+    amountIn: BigNumber,
+    tokenAmount: BigNumber,
+    routePathArray: string[],
+    deadline: string
+  ): string {
+    const ethAmountInWei = hexlify(parseEther(amountIn));
+
+    // pancakeswap adds extra digits on even if the token is say 8 digits long
+    const convertedMinTokens = tokenAmount
+      .shiftedBy(this.toToken.decimals)
+      .decimalPlaces(0);
+
+    const hex = hexlify(convertedMinTokens);
+
+    return this._pancakeswapRouterContractFactory.swapETHForExactTokens(
+      // ethAmountInWei,
+      hex,
+      routePathArray,
+      this._pancakeswapPairFactoryContext.ethereumAddress,
+      deadline
+    );
+  }
+
+  /**
+   * Generate trade amount erc20 > eth
+   * @param tokenAmount The token amount
+   * @param ethAmountOutMin The min eth in eth not wei this converts it
+   * @param routePathArray The route path array
+   * @param deadline The deadline it expiries unix time
+   */
+  private generateTradeDataExactOutputErc20ToEth(
+    tokenAmountInMax: BigNumber,
+    ethAmountOut: BigNumber,
+    routePathArray: string[],
+    deadline: string
+  ): string {
+    // pancakeswap adds extra digits on even if the token is say 8 digits long
+    const amountInMax = tokenAmountInMax
+      .shiftedBy(this.fromToken.decimals)
+      .decimalPlaces(0);
+
+    const ethAmountOutWei = hexlify(parseEther(ethAmountOut));
+
+    return this._pancakeswapRouterContractFactory.swapTokensForExactETH(
+      ethAmountOutWei,
+      hexlify(amountInMax),
+      routePathArray,
+      this._pancakeswapPairFactoryContext.ethereumAddress,
+      deadline
+    );
+  }
+
+  /**
+   * Generate trade amount erc20 > erc20
+   * @param tokenAmount The token amount
+   * @param tokenAmountOut The min token amount out
+   * @param routePathArray The route path array
+   * @param deadline The deadline it expiries unix time
+   */
+  private generateTradeDataExactOutputErc20ToErc20(
+    tokenAmountInMax: BigNumber,
+    tokenAmount: BigNumber,
+    routePathArray: string[],
+    deadline: string
+  ): string {
+    // pancakeswap adds extra digits on even if the token is say 8 digits long
+    const amountInMax = tokenAmountInMax
+      .shiftedBy(this.fromToken.decimals)
+      .decimalPlaces(0);
+    const amountOut = tokenAmount
+      .shiftedBy(this.toToken.decimals)
+      .decimalPlaces(0);
+
+    return this._pancakeswapRouterContractFactory.swapTokensForExactTokens(
+      hexlify(amountOut),
+      hexlify(amountInMax),
       routePathArray,
       this._pancakeswapPairFactoryContext.ethereumAddress,
       deadline

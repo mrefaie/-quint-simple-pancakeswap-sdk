@@ -16,11 +16,17 @@ export declare class PancakeswapRouterFactory {
      */
     getAllPossibleRoutes(): Promise<Token[][]>;
     getAllPossibleRoutesWithQuotes(amountToTrade: BigNumber): Promise<RouteQuote[]>;
+    getAllPossibleExactOutputRoutesWithQuotes(amountOut: BigNumber): Promise<RouteQuote[]>;
     /**
      * Finds the best route
      * @param amountToTrade The amount they want to trade
      */
     findBestRoute(amountToTrade: BigNumber): Promise<BestRouteQuotes>;
+    /**
+     * Finds the best route
+     * @param amountOut The amount they want to output
+     */
+    findBestExactOutputRoute(amountOut: BigNumber): Promise<BestRouteQuotes>;
     /**
      * Works out every possible route it can take
      * @param fromTokenRoutes The from token routes
@@ -53,11 +59,38 @@ export declare class PancakeswapRouterFactory {
      */
     private buildRouteQuoteForErc20ToEth;
     /**
+     * Build up route quotes from results
+     * @param pancakeswapFactoryContext The pancakeswap factory context
+     * @param contractCallReturnContext The contract call return context
+     */
+    private buildExactOutputRouteQuotesFromResults;
+    /**
+     * Build up the route quote for erc20 > erc20
+     * @param callReturnContext The call return context
+     */
+    private buildExactOutputRouteQuoteForErc20ToErc20;
+    /**
+     * Build up route quote for eth > erc20
+     * @param callReturnContext The call return context
+     */
+    private buildExactOutputRouteQuoteForEthToErc20;
+    /**
+     * Build up the route quote for erc20 > eth
+     * @param callReturnContext The call return context
+     */
+    private buildExactOutputRouteQuoteForErc20ToEth;
+    /**
      * Format amount to trade into callable formats
      * @param amountToTrade The amount to trade
      * @param pancakeswapFactoryContext The pancakeswap factory context
      */
     private formatAmountToTrade;
+    /**
+     * Format trade output amount into callable formats
+     * @param amountOut The amount to output
+     * @param pancakeswapFactoryContext The pancakeswap factory context
+     */
+    private formatAmountToOutput;
     /**
      * Get the trade path
      */
