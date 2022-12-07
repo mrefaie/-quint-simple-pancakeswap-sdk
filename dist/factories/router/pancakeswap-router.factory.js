@@ -400,6 +400,7 @@ class PancakeswapRouterFactory {
                 if ((callReturnContext === null || callReturnContext === void 0 ? void 0 : callReturnContext.success) === false) {
                     continue;
                 }
+                console.log(callReturnContext);
                 switch (tradePath) {
                     case trade_path_2.TradePath.ethToErc20:
                         result.push(this.buildExactOutputRouteQuoteForEthToErc20(callReturnContext));
@@ -437,10 +438,12 @@ class PancakeswapRouterFactory {
      * @param callReturnContext The call return context
      */
     buildExactOutputRouteQuoteForEthToErc20(callReturnContext) {
-        const convertQuoteUnformatted = new bignumber_js_1.default(callReturnContext.returnValues[0].hex);
+        const amountInUnformatted = new bignumber_js_1.default(callReturnContext.returnValues[0].hex);
+        const amountOutUnformatted = new bignumber_js_1.default(callReturnContext.returnValues[callReturnContext.returnValues.length - 1].hex);
         return {
-            expectedConvertQuote: convertQuoteUnformatted
-                .shiftedBy(this._fromToken.decimals * -1)
+            expectedConvertQuote: amountOutUnformatted
+                .shiftedBy(this._toToken.decimals * -1)
+                .div(amountInUnformatted.shiftedBy(this._fromToken.decimals * -1))
                 .toFixed(this._fromToken.decimals),
             routePathArrayTokenMap: callReturnContext.methodParameters[1].map((c) => {
                 return this.allTokens.find((t) => t.contractAddress === c);
@@ -459,9 +462,13 @@ class PancakeswapRouterFactory {
      * @param callReturnContext The call return context
      */
     buildExactOutputRouteQuoteForErc20ToEth(callReturnContext) {
-        const convertQuoteUnformatted = new bignumber_js_1.default(callReturnContext.returnValues[0].hex);
+        const amountInUnformatted = new bignumber_js_1.default(callReturnContext.returnValues[0].hex);
+        const amountOutUnformatted = new bignumber_js_1.default(callReturnContext.returnValues[callReturnContext.returnValues.length - 1].hex);
         return {
-            expectedConvertQuote: new bignumber_js_1.default((0, format_ether_1.formatEther)(convertQuoteUnformatted)).toFixed(this._fromToken.decimals),
+            expectedConvertQuote: amountOutUnformatted
+                .shiftedBy(this._toToken.decimals * -1)
+                .div(amountInUnformatted.shiftedBy(this._fromToken.decimals * -1))
+                .toFixed(this._fromToken.decimals),
             routePathArrayTokenMap: callReturnContext.methodParameters[1].map((c) => {
                 return this.allTokens.find((t) => t.contractAddress === c);
             }),

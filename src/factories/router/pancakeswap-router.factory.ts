@@ -595,6 +595,8 @@ export class PancakeswapRouterFactory {
           continue;
         }
 
+        console.log(callReturnContext);
+
         switch (tradePath) {
           case TradePath.ethToErc20:
             result.push(
@@ -655,12 +657,20 @@ export class PancakeswapRouterFactory {
   private buildExactOutputRouteQuoteForEthToErc20(
     callReturnContext: CallReturnContext
   ): RouteQuote {
-    const convertQuoteUnformatted = new BigNumber(
+    const amountInUnformatted = new BigNumber(
       callReturnContext.returnValues[0].hex
     );
+
+    const amountOutUnformatted = new BigNumber(
+      callReturnContext.returnValues[
+        callReturnContext.returnValues.length - 1
+      ].hex
+    );
+
     return {
-      expectedConvertQuote: convertQuoteUnformatted
-        .shiftedBy(this._fromToken.decimals * -1)
+      expectedConvertQuote: amountOutUnformatted
+        .shiftedBy(this._toToken.decimals * -1)
+        .div(amountInUnformatted.shiftedBy(this._fromToken.decimals * -1))
         .toFixed(this._fromToken.decimals),
       routePathArrayTokenMap: callReturnContext.methodParameters[1].map(
         (c: string) => {
@@ -684,13 +694,21 @@ export class PancakeswapRouterFactory {
   private buildExactOutputRouteQuoteForErc20ToEth(
     callReturnContext: CallReturnContext
   ): RouteQuote {
-    const convertQuoteUnformatted = new BigNumber(
+    const amountInUnformatted = new BigNumber(
       callReturnContext.returnValues[0].hex
     );
+
+    const amountOutUnformatted = new BigNumber(
+      callReturnContext.returnValues[
+        callReturnContext.returnValues.length - 1
+      ].hex
+    );
+
     return {
-      expectedConvertQuote: new BigNumber(
-        formatEther(convertQuoteUnformatted)
-      ).toFixed(this._fromToken.decimals),
+      expectedConvertQuote: amountOutUnformatted
+        .shiftedBy(this._toToken.decimals * -1)
+        .div(amountInUnformatted.shiftedBy(this._fromToken.decimals * -1))
+        .toFixed(this._fromToken.decimals),
       routePathArrayTokenMap: callReturnContext.methodParameters[1].map(
         (c: string) => {
           return this.allTokens.find((t) => t.contractAddress === c);
