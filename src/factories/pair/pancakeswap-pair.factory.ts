@@ -904,7 +904,9 @@ export class PancakeswapPairFactory {
     routePathArray: string[],
     deadline: string
   ): string {
-    const ethAmountInWei = hexlify(parseEther(amountIn));
+    const ethAmountInWei = hexlify(
+      parseEther(amountIn.decimalPlaces(this.fromToken.decimals))
+    );
 
     // pancakeswap adds extra digits on even if the token is say 8 digits long
     const convertedMinTokens = tokenAmount
@@ -1007,7 +1009,9 @@ export class PancakeswapPairFactory {
       to: ContractContext.routerAddress,
       from: this._pancakeswapPairFactoryContext.ethereumAddress,
       data,
-      value: toEthersBigNumber(parseEther(ethValue)).toHexString(),
+      value: toEthersBigNumber(
+        parseEther(ethValue.decimalPlaces(this.fromToken.decimals))
+      ).toHexString(),
     };
   }
 
