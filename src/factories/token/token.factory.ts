@@ -31,7 +31,10 @@ export class TokenFactory {
     const DECIMALS = 1;
     const NAME = 2;
 
-    if (this._tokenContractAddress === BNB.token().contractAddress) {
+    if (
+      this._tokenContractAddress.toLowerCase() ===
+      BNB.token().contractAddress.toLowerCase()
+    ) {
       return BNB.token();
     }
 
@@ -102,6 +105,13 @@ export class TokenFactory {
    * @ethereumAddress The users ethereum address
    */
   public async balanceOf(ethereumAddress: string): Promise<string> {
+    if (
+      this._tokenContractAddress.toLowerCase() ===
+      BNB.token().contractAddress.toLowerCase()
+    ) {
+      return await this._ethersProvider.balanceOf(ethereumAddress);
+    }
+
     const balance = await this._erc20TokenContracy.balanceOf(ethereumAddress);
 
     return balance.toHexString();
