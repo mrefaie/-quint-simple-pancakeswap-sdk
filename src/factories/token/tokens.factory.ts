@@ -1,9 +1,10 @@
-import { ContractCallContext, Multicall } from 'ethereum-multicall';
-import { ContractContext } from '../../common/contract-context';
-import { ErrorCodes } from '../../common/errors/error-codes';
-import { PancakeswapError } from '../../common/errors/pancakeswap-error';
-import { EthersProvider } from '../../ethers-provider';
-import { Token } from './models/token';
+import { ContractCallContext, Multicall } from "ethereum-multicall";
+import { ContractContext } from "../../common/contract-context";
+import { ErrorCodes } from "../../common/errors/error-codes";
+import { PancakeswapError } from "../../common/errors/pancakeswap-error";
+import { BNB } from "../../common/tokens";
+import { EthersProvider } from "../../ethers-provider";
+import { Token } from "./models/token";
 
 export class TokensFactory {
   private _multicall = new Multicall({
@@ -21,8 +22,17 @@ export class TokensFactory {
       const DECIMALS = 1;
       const NAME = 2;
 
+      const tokens: Token[] = [];
+
       const contractCallContexts: ContractCallContext[] = [];
       for (let i = 0; i < tokenContractAddresses.length; i++) {
+        if (
+          tokenContractAddresses[i].toLowerCase() ===
+          BNB.token().contractAddress.toLowerCase()
+        ) {
+          tokens.push(BNB.token());
+          continue;
+        }
         const contractCallContext: ContractCallContext = {
           reference: `token${i}`,
           contractAddress: tokenContractAddresses[i],
@@ -30,17 +40,17 @@ export class TokensFactory {
           calls: [
             {
               reference: `symbol`,
-              methodName: 'symbol',
+              methodName: "symbol",
               methodParameters: [],
             },
             {
               reference: `decimals`,
-              methodName: 'decimals',
+              methodName: "decimals",
               methodParameters: [],
             },
             {
               reference: `name`,
-              methodName: 'name',
+              methodName: "name",
               methodParameters: [],
             },
           ],
@@ -52,8 +62,6 @@ export class TokensFactory {
       const contractCallResults = await this._multicall.call(
         contractCallContexts
       );
-
-      const tokens: Token[] = [];
 
       for (const result in contractCallResults.results) {
         const tokenInfo = contractCallResults.results[result];
@@ -71,7 +79,7 @@ export class TokensFactory {
       return tokens;
     } catch (error) {
       throw new PancakeswapError(
-        'invalid from or to contract tokens',
+        "invalid from or to contract tokens",
         ErrorCodes.invalidFromOrToContractToken
       );
     }
