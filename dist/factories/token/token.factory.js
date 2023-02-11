@@ -13,6 +13,7 @@ exports.TokenFactory = void 0;
 const ethereum_multicall_1 = require("ethereum-multicall");
 const ethers_1 = require("ethers");
 const contract_context_1 = require("../../common/contract-context");
+const tokens_1 = require("../../common/tokens");
 class TokenFactory {
     constructor(_tokenContractAddress, _ethersProvider) {
         this._tokenContractAddress = _tokenContractAddress;
@@ -30,24 +31,28 @@ class TokenFactory {
             const SYMBOL = 0;
             const DECIMALS = 1;
             const NAME = 2;
+            if (this._tokenContractAddress.toLowerCase() ===
+                tokens_1.BNB.token().contractAddress.toLowerCase()) {
+                return tokens_1.BNB.token();
+            }
             const contractCallContext = {
-                reference: 'token',
+                reference: "token",
                 contractAddress: this._tokenContractAddress,
                 abi: contract_context_1.ContractContext.erc20Abi,
                 calls: [
                     {
                         reference: `symbol`,
-                        methodName: 'symbol',
+                        methodName: "symbol",
                         methodParameters: [],
                     },
                     {
                         reference: `decimals`,
-                        methodName: 'decimals',
+                        methodName: "decimals",
                         methodParameters: [],
                     },
                     {
                         reference: `name`,
-                        methodName: 'name',
+                        methodName: "name",
                         methodParameters: [],
                     },
                 ],
@@ -81,7 +86,7 @@ class TokenFactory {
      * @value The amount you want to allow them to do
      */
     generateApproveAllowanceData(spender, value) {
-        return this._erc20TokenContracy.interface.encodeFunctionData('approve', [
+        return this._erc20TokenContracy.interface.encodeFunctionData("approve", [
             spender,
             value,
         ]);
@@ -92,6 +97,10 @@ class TokenFactory {
      */
     balanceOf(ethereumAddress) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (this._tokenContractAddress.toLowerCase() ===
+                tokens_1.BNB.token().contractAddress.toLowerCase()) {
+                return yield this._ethersProvider.balanceOf(ethereumAddress);
+            }
             const balance = yield this._erc20TokenContracy.balanceOf(ethereumAddress);
             return balance.toHexString();
         });
@@ -114,18 +123,18 @@ class TokenFactory {
             const ALLOWANCE = 0;
             const BALANCEOF = 1;
             const contractCallContext = {
-                reference: 'allowance-and-balance-of',
+                reference: "allowance-and-balance-of",
                 contractAddress: this._tokenContractAddress,
                 abi: contract_context_1.ContractContext.erc20Abi,
                 calls: [
                     {
-                        reference: 'allowance',
-                        methodName: 'allowance',
+                        reference: "allowance",
+                        methodName: "allowance",
                         methodParameters: [ethereumAddress, contract_context_1.ContractContext.routerAddress],
                     },
                     {
-                        reference: 'balanceOf',
-                        methodName: 'balanceOf',
+                        reference: "balanceOf",
+                        methodName: "balanceOf",
                         methodParameters: [ethereumAddress],
                     },
                 ],

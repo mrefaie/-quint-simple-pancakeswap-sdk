@@ -1,10 +1,10 @@
 import { ChainId } from "../../enums/chain-id";
 /**
- * BNB token context
+ * BUSD token context
  */
-export declare class BNB {
+export declare class BUSD {
     /**
-     * Get BNB token info
+     * Get BUSD token info
      */
     static token(): {
         chainId: ChainId;

@@ -624,7 +624,7 @@ class PancakeswapPairFactory {
      * @param deadline The deadline it expiries unix time
      */
     generateTradeDataExactOutputEthToErc20(amountIn, tokenAmount, routePathArray, deadline) {
-        const ethAmountInWei = (0, hexlify_1.hexlify)((0, parse_ether_1.parseEther)(amountIn));
+        const ethAmountInWei = (0, hexlify_1.hexlify)((0, parse_ether_1.parseEther)(amountIn.decimalPlaces(this.fromToken.decimals)));
         // pancakeswap adds extra digits on even if the token is say 8 digits long
         const convertedMinTokens = tokenAmount
             .shiftedBy(this.toToken.decimals)
@@ -688,7 +688,7 @@ class PancakeswapPairFactory {
             to: contract_context_1.ContractContext.routerAddress,
             from: this._pancakeswapPairFactoryContext.ethereumAddress,
             data,
-            value: (0, to_ethers_big_number_1.toEthersBigNumber)((0, parse_ether_1.parseEther)(ethValue)).toHexString(),
+            value: (0, to_ethers_big_number_1.toEthersBigNumber)((0, parse_ether_1.parseEther)(ethValue.decimalPlaces(this.fromToken.decimals))).toHexString(),
         };
     }
     /**

@@ -1,5 +1,5 @@
-import { EthersProvider } from '../../ethers-provider';
-import { Token } from './models/token';
+import { EthersProvider } from "../../ethers-provider";
+import { Token } from "./models/token";
 export declare class TokensFactory {
     private _ethersProvider;
     private _multicall;

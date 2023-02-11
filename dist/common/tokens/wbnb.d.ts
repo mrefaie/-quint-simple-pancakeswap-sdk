@@ -2,7 +2,7 @@ import { ChainId } from "../../enums/chain-id";
 /**
  * BNB token context
  */
-export declare class BNB {
+export declare class WBNB {
     /**
      * Get BNB token info
      */

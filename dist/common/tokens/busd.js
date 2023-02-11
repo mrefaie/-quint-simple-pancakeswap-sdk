@@ -1,22 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BNB = void 0;
+exports.BUSD = void 0;
 const chain_id_1 = require("../../enums/chain-id");
 /**
- * BNB token context
+ * BUSD token context
  */
-class BNB {
+class BUSD {
     /**
-     * Get BNB token info
+     * Get BUSD token info
      */
     static token() {
         return {
             chainId: chain_id_1.ChainId.BSC,
-            contractAddress: "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
+            contractAddress: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
             decimals: 18,
-            symbol: "BNB",
-            name: "Binance Chain Native Token",
+            symbol: "BUSD",
+            name: "Binance-Peg",
         };
     }
 }
-exports.BNB = BNB;
+exports.BUSD = BUSD;

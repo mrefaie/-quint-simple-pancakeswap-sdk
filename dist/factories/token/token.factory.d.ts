@@ -1,6 +1,6 @@
-import { EthersProvider } from '../../ethers-provider';
-import { AllowanceAndBalanceOf } from './models/allowance-balance-of';
-import { Token } from './models/token';
+import { EthersProvider } from "../../ethers-provider";
+import { AllowanceAndBalanceOf } from "./models/allowance-balance-of";
+import { Token } from "./models/token";
 export declare class TokenFactory {
     private _tokenContractAddress;
     private _ethersProvider;

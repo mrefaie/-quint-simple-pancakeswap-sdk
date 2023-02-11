@@ -109,4 +109,5 @@ export declare class PancakeswapRouterFactory {
     private get DAITokenForConnectedNetwork();
     private get USDCTokenForConnectedNetwork();
     private get WETHTokenForConnectedNetwork();
+    private get BUSDTokenForConnectedNetwork();
 }

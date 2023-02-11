@@ -18,11 +18,12 @@ const ethereum_multicall_1 = require("ethereum-multicall");
 const contract_context_1 = require("../../common/contract-context");
 const error_codes_1 = require("../../common/errors/error-codes");
 const pancakeswap_error_1 = require("../../common/errors/pancakeswap-error");
-const bnb_1 = require("../../common/tokens/bnb");
+const busd_1 = require("../../common/tokens/busd");
 const comp_1 = require("../../common/tokens/comp");
 const dai_1 = require("../../common/tokens/dai");
 const usdc_1 = require("../../common/tokens/usdc");
 const usdt_1 = require("../../common/tokens/usdt");
+const wbnb_1 = require("../../common/tokens/wbnb");
 const format_ether_1 = require("../../common/utils/format-ether");
 const hexlify_1 = require("../../common/utils/hexlify");
 const only_unique_1 = require("../../common/utils/only-unique");
@@ -543,6 +544,7 @@ class PancakeswapRouterFactory {
             [this._fromToken, this.USDCTokenForConnectedNetwork],
             [this._fromToken, this.DAITokenForConnectedNetwork],
             [this._fromToken, this.WETHTokenForConnectedNetwork],
+            [this._fromToken, this.BUSDTokenForConnectedNetwork],
         ];
         return pairs.filter((t) => t[0].contractAddress !== t[1].contractAddress);
     }
@@ -553,6 +555,7 @@ class PancakeswapRouterFactory {
             [this.USDCTokenForConnectedNetwork, this._toToken],
             [this.DAITokenForConnectedNetwork, this._toToken],
             [this.WETHTokenForConnectedNetwork, this._toToken],
+            [this.BUSDTokenForConnectedNetwork, this._toToken],
         ];
         return pairs.filter((t) => t[0].contractAddress !== t[1].contractAddress);
     }
@@ -607,7 +610,10 @@ class PancakeswapRouterFactory {
         return usdc_1.USDC.token();
     }
     get WETHTokenForConnectedNetwork() {
-        return bnb_1.BNB.token();
+        return wbnb_1.WBNB.token();
+    }
+    get BUSDTokenForConnectedNetwork() {
+        return busd_1.BUSD.token();
     }
 }
 exports.PancakeswapRouterFactory = PancakeswapRouterFactory;
