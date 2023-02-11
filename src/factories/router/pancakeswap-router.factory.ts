@@ -8,12 +8,12 @@ import {
 import { ContractContext } from "../../common/contract-context";
 import { ErrorCodes } from "../../common/errors/error-codes";
 import { PancakeswapError } from "../../common/errors/pancakeswap-error";
-import { BNB } from "../../common/tokens/bnb";
 import { BUSD } from "../../common/tokens/busd";
 import { COMP } from "../../common/tokens/comp";
 import { DAI } from "../../common/tokens/dai";
 import { USDC } from "../../common/tokens/usdc";
 import { USDT } from "../../common/tokens/usdt";
+import { WBNB } from "../../common/tokens/wbnb";
 import { formatEther } from "../../common/utils/format-ether";
 import { hexlify } from "../../common/utils/hexlify";
 import { onlyUnique } from "../../common/utils/only-unique";
@@ -878,7 +878,7 @@ export class PancakeswapRouterFactory {
   }
 
   private get WETHTokenForConnectedNetwork() {
-    return BNB.token();
+    return WBNB.token();
   }
 
   private get BUSDTokenForConnectedNetwork() {

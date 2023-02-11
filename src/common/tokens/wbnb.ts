@@ -3,17 +3,17 @@ import { ChainId } from "../../enums/chain-id";
 /**
  * BNB token context
  */
-export class BNB {
+export class WBNB {
   /**
    * Get BNB token info
    */
   public static token() {
     return {
       chainId: ChainId.BSC,
-      contractAddress: "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
+      contractAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
       decimals: 18,
-      symbol: "BNB",
-      name: "Binance Chain Native Token",
+      symbol: "WBNB",
+      name: "Wrapped Binance token",
     };
   }
 }
