@@ -1,6 +1,6 @@
 {
   "name": "@quint/simple-pancakeswap-sdk",
-  "version": "1.2.11",
+  "version": "1.2.12",
   "description": "Simple easy to understand SDK for pancakeswap",
   "main": "dist/index.js",
   "scripts": {

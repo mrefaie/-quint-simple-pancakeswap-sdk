@@ -1,20 +1,22 @@
-import { ContractCallContext, Multicall } from 'ethereum-multicall';
-import { BigNumber } from 'ethers';
-import { ContractContext as ERC20ContractContext } from '../../ABI/types/erc20-contract';
-import { ContractContext } from '../../common/contract-context';
-import { EthersProvider } from '../../ethers-provider';
-import { AllowanceAndBalanceOf } from './models/allowance-balance-of';
-import { Token } from './models/token';
+import { ContractCallContext, Multicall } from "ethereum-multicall";
+import { BigNumber } from "ethers";
+import { ContractContext as ERC20ContractContext } from "../../ABI/types/erc20-contract";
+import { ContractContext } from "../../common/contract-context";
+import { BNB } from "../../common/tokens";
+import { EthersProvider } from "../../ethers-provider";
+import { AllowanceAndBalanceOf } from "./models/allowance-balance-of";
+import { Token } from "./models/token";
 
 export class TokenFactory {
   private _multicall = new Multicall({
     ethersProvider: this._ethersProvider.provider,
   });
 
-  private _erc20TokenContracy = this._ethersProvider.getContract<ERC20ContractContext>(
-    JSON.stringify(ContractContext.erc20Abi),
-    this._tokenContractAddress
-  );
+  private _erc20TokenContracy =
+    this._ethersProvider.getContract<ERC20ContractContext>(
+      JSON.stringify(ContractContext.erc20Abi),
+      this._tokenContractAddress
+    );
 
   constructor(
     private _tokenContractAddress: string,
@@ -29,24 +31,28 @@ export class TokenFactory {
     const DECIMALS = 1;
     const NAME = 2;
 
+    if (this._tokenContractAddress === BNB.token().contractAddress) {
+      return BNB.token();
+    }
+
     const contractCallContext: ContractCallContext = {
-      reference: 'token',
+      reference: "token",
       contractAddress: this._tokenContractAddress,
       abi: ContractContext.erc20Abi,
       calls: [
         {
           reference: `symbol`,
-          methodName: 'symbol',
+          methodName: "symbol",
           methodParameters: [],
         },
         {
           reference: `decimals`,
-          methodName: 'decimals',
+          methodName: "decimals",
           methodParameters: [],
         },
         {
           reference: `name`,
-          methodName: 'name',
+          methodName: "name",
           methodParameters: [],
         },
       ],
@@ -85,7 +91,7 @@ export class TokenFactory {
    * @value The amount you want to allow them to do
    */
   public generateApproveAllowanceData(spender: string, value: string): string {
-    return this._erc20TokenContracy.interface.encodeFunctionData('approve', [
+    return this._erc20TokenContracy.interface.encodeFunctionData("approve", [
       spender,
       value,
     ]);
@@ -121,18 +127,18 @@ export class TokenFactory {
     const BALANCEOF = 1;
 
     const contractCallContext: ContractCallContext = {
-      reference: 'allowance-and-balance-of',
+      reference: "allowance-and-balance-of",
       contractAddress: this._tokenContractAddress,
       abi: ContractContext.erc20Abi,
       calls: [
         {
-          reference: 'allowance',
-          methodName: 'allowance',
+          reference: "allowance",
+          methodName: "allowance",
           methodParameters: [ethereumAddress, ContractContext.routerAddress],
         },
         {
-          reference: 'balanceOf',
-          methodName: 'balanceOf',
+          reference: "balanceOf",
+          methodName: "balanceOf",
           methodParameters: [ethereumAddress],
         },
       ],
