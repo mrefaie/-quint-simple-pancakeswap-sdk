@@ -31,32 +31,32 @@ export class TokensFactory {
           BNB.token().contractAddress.toLowerCase()
         ) {
           tokens.push(BNB.token());
-          continue;
-        }
-        const contractCallContext: ContractCallContext = {
-          reference: `token${i}`,
-          contractAddress: tokenContractAddresses[i],
-          abi: ContractContext.erc20Abi,
-          calls: [
-            {
-              reference: `symbol`,
-              methodName: "symbol",
-              methodParameters: [],
-            },
-            {
-              reference: `decimals`,
-              methodName: "decimals",
-              methodParameters: [],
-            },
-            {
-              reference: `name`,
-              methodName: "name",
-              methodParameters: [],
-            },
-          ],
-        };
+        } else {
+          const contractCallContext: ContractCallContext = {
+            reference: `token${i}`,
+            contractAddress: tokenContractAddresses[i],
+            abi: ContractContext.erc20Abi,
+            calls: [
+              {
+                reference: `symbol`,
+                methodName: "symbol",
+                methodParameters: [],
+              },
+              {
+                reference: `decimals`,
+                methodName: "decimals",
+                methodParameters: [],
+              },
+              {
+                reference: `name`,
+                methodName: "name",
+                methodParameters: [],
+              },
+            ],
+          };
 
-        contractCallContexts.push(contractCallContext);
+          contractCallContexts.push(contractCallContext);
+        }
       }
 
       const contractCallResults = await this._multicall.call(
