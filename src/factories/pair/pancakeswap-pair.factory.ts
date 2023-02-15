@@ -46,7 +46,8 @@ export class PancakeswapPairFactory {
       ? this._pancakeswapPairFactoryContext.toToken.wrappedToken
       : this._pancakeswapPairFactoryContext.toToken,
     this._pancakeswapPairFactoryContext.settings.disableMultihops,
-    this._pancakeswapPairFactoryContext.ethersProvider
+    this._pancakeswapPairFactoryContext.ethersProvider,
+    this._pancakeswapPairFactoryContext.isETH
   );
 
   private _quoteChangeTimeout: NodeJS.Timeout | undefined;
@@ -297,7 +298,8 @@ export class PancakeswapPairFactory {
    */
   public async getAllowanceAndBalanceOfForFromToken(): Promise<AllowanceAndBalanceOf> {
     return await this._fromTokenFactory.getAllowanceAndBalanceOf(
-      this._pancakeswapPairFactoryContext.ethereumAddress
+      this._pancakeswapPairFactoryContext.ethereumAddress,
+      this._pancakeswapPairFactoryContext.isETH
     );
   }
 
@@ -1023,7 +1025,11 @@ export class PancakeswapPairFactory {
    * Get the trade path
    */
   private tradePath(): TradePath {
-    return getTradePath(this.fromToken, this.toToken);
+    return getTradePath(
+      this.fromToken,
+      this.toToken,
+      this._pancakeswapPairFactoryContext.isETH
+    );
   }
 
   /**

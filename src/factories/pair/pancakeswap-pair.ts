@@ -1,12 +1,12 @@
-import { ErrorCodes } from '../../common/errors/error-codes';
-import { PancakeswapError } from '../../common/errors/pancakeswap-error';
-import { isAddress } from '../../common/utils/is-address';
-import { EthersProvider } from '../../ethers-provider';
-import { TokensFactory } from '../token/tokens.factory';
-import { PancakeswapPairContext } from './models/pancakeswap-pair-contexts';
-import { PancakeswapPairFactoryContext } from './models/pancakeswap-pair-factory-context';
-import { PancakeswapPairSettings } from './models/pancakeswap-pair-settings';
-import { PancakeswapPairFactory } from './pancakeswap-pair.factory';
+import { ErrorCodes } from "../../common/errors/error-codes";
+import { PancakeswapError } from "../../common/errors/pancakeswap-error";
+import { isAddress } from "../../common/utils/is-address";
+import { EthersProvider } from "../../ethers-provider";
+import { TokensFactory } from "../token/tokens.factory";
+import { PancakeswapPairContext } from "./models/pancakeswap-pair-contexts";
+import { PancakeswapPairFactoryContext } from "./models/pancakeswap-pair-factory-context";
+import { PancakeswapPairSettings } from "./models/pancakeswap-pair-settings";
+import { PancakeswapPairFactory } from "./pancakeswap-pair.factory";
 
 export class PancakeswapPair {
   private _ethersProvider: EthersProvider;
@@ -14,42 +14,42 @@ export class PancakeswapPair {
   constructor(private _pancakeswapPairContext: PancakeswapPairContext) {
     if (!this._pancakeswapPairContext.fromTokenContractAddress) {
       throw new PancakeswapError(
-        'Must have a `fromTokenContractAddress` on the context',
+        "Must have a `fromTokenContractAddress` on the context",
         ErrorCodes.fromTokenContractAddressRequired
       );
     }
 
     if (!isAddress(this._pancakeswapPairContext.fromTokenContractAddress)) {
       throw new PancakeswapError(
-        '`fromTokenContractAddress` is not a valid contract address',
+        "`fromTokenContractAddress` is not a valid contract address",
         ErrorCodes.fromTokenContractAddressNotValid
       );
     }
 
     if (!this._pancakeswapPairContext.toTokenContractAddress) {
       throw new PancakeswapError(
-        'Must have a `toTokenContractAddress` on the context',
+        "Must have a `toTokenContractAddress` on the context",
         ErrorCodes.toTokenContractAddressRequired
       );
     }
 
     if (!isAddress(this._pancakeswapPairContext.toTokenContractAddress)) {
       throw new PancakeswapError(
-        '`toTokenContractAddress` is not a valid contract address',
+        "`toTokenContractAddress` is not a valid contract address",
         ErrorCodes.toTokenContractAddressNotValid
       );
     }
 
     if (!this._pancakeswapPairContext.ethereumAddress) {
       throw new PancakeswapError(
-        'Must have a `ethereumAddress` on the context',
+        "Must have a `ethereumAddress` on the context",
         ErrorCodes.ethereumAddressRequired
       );
     }
 
     if (!isAddress(this._pancakeswapPairContext.ethereumAddress)) {
       throw new PancakeswapError(
-        '`ethereumAddress` is not a valid address',
+        "`ethereumAddress` is not a valid address",
         ErrorCodes.ethereumAddressNotValid
       );
     }
@@ -85,6 +85,7 @@ export class PancakeswapPair {
           t.contractAddress ===
           this._pancakeswapPairContext.toTokenContractAddress
       )!,
+      isETH: this._pancakeswapPairContext.isETH,
       ethereumAddress: this._pancakeswapPairContext.ethereumAddress,
       settings:
         this._pancakeswapPairContext.settings || new PancakeswapPairSettings(),

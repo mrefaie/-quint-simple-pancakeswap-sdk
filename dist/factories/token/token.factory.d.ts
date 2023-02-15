@@ -28,7 +28,7 @@ export declare class TokenFactory {
      * Get the balance the user has of this token
      * @ethereumAddress The users ethereum address
      */
-    balanceOf(ethereumAddress: string): Promise<string>;
+    balanceOf(ethereumAddress: string, isETH?: boolean): Promise<string>;
     /**
      * Get the total supply of tokens which exist
      */
@@ -37,5 +37,5 @@ export declare class TokenFactory {
      * Get allowance and balance
      * @param ethereumAddress
      */
-    getAllowanceAndBalanceOf(ethereumAddress: string): Promise<AllowanceAndBalanceOf>;
+    getAllowanceAndBalanceOf(ethereumAddress: string, isETH?: boolean): Promise<AllowanceAndBalanceOf>;
 }

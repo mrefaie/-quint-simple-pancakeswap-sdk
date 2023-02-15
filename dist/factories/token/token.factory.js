@@ -13,7 +13,6 @@ exports.TokenFactory = void 0;
 const ethereum_multicall_1 = require("ethereum-multicall");
 const ethers_1 = require("ethers");
 const contract_context_1 = require("../../common/contract-context");
-const tokens_1 = require("../../common/tokens");
 class TokenFactory {
     constructor(_tokenContractAddress, _ethersProvider) {
         this._tokenContractAddress = _tokenContractAddress;
@@ -22,9 +21,9 @@ class TokenFactory {
             ethersProvider: this._ethersProvider.provider,
         });
         this._erc20TokenContracy = this._ethersProvider.getContract(JSON.stringify(contract_context_1.ContractContext.erc20Abi), this._tokenContractAddress);
-        if (this._tokenContractAddress === tokens_1.BNB.token().contractAddress) {
-            this._tokenContractAddress = tokens_1.WBNB.token().contractAddress;
-        }
+        // if (this._tokenContractAddress === BNB.token().contractAddress) {
+        //   this._tokenContractAddress = WBNB.token().contractAddress;
+        // }
     }
     /**
      * Get the token details
@@ -34,10 +33,12 @@ class TokenFactory {
             const SYMBOL = 0;
             const DECIMALS = 1;
             const NAME = 2;
-            if (this._tokenContractAddress.toLowerCase() ===
-                tokens_1.BNB.token().contractAddress.toLowerCase()) {
-                return tokens_1.BNB.token();
-            }
+            // if (
+            //   this._tokenContractAddress.toLowerCase() ===
+            //   BNB.token().contractAddress.toLowerCase()
+            // ) {
+            //   return BNB.token();
+            // }
             const contractCallContext = {
                 reference: "token",
                 contractAddress: this._tokenContractAddress,
@@ -98,10 +99,9 @@ class TokenFactory {
      * Get the balance the user has of this token
      * @ethereumAddress The users ethereum address
      */
-    balanceOf(ethereumAddress) {
+    balanceOf(ethereumAddress, isETH) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this._tokenContractAddress.toLowerCase() ===
-                tokens_1.BNB.token().contractAddress.toLowerCase()) {
+            if (isETH) {
                 return yield this._ethersProvider.balanceOf(ethereumAddress);
             }
             const balance = yield this._erc20TokenContracy.balanceOf(ethereumAddress);
@@ -121,7 +121,7 @@ class TokenFactory {
      * Get allowance and balance
      * @param ethereumAddress
      */
-    getAllowanceAndBalanceOf(ethereumAddress) {
+    getAllowanceAndBalanceOf(ethereumAddress, isETH = false) {
         return __awaiter(this, void 0, void 0, function* () {
             const ALLOWANCE = 0;
             const BALANCEOF = 1;
@@ -146,7 +146,9 @@ class TokenFactory {
             const results = contractCallResults.results[contractCallContext.reference];
             return {
                 allowance: ethers_1.BigNumber.from(results.callsReturnContext[ALLOWANCE].returnValues[0]).toHexString(),
-                balanceOf: ethers_1.BigNumber.from(results.callsReturnContext[BALANCEOF].returnValues[0]).toHexString(),
+                balanceOf: isETH
+                    ? yield this._ethersProvider.balanceOf(ethereumAddress)
+                    : ethers_1.BigNumber.from(results.callsReturnContext[BALANCEOF].returnValues[0]).toHexString(),
             };
         });
     }

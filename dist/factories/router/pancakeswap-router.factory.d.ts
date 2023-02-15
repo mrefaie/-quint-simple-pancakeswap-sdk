@@ -8,8 +8,9 @@ export declare class PancakeswapRouterFactory {
     private _toToken;
     private _disableMultihops;
     private _ethersProvider;
+    private _isETH;
     private _multicall;
-    constructor(_fromToken: Token, _toToken: Token, _disableMultihops: boolean, _ethersProvider: EthersProvider);
+    constructor(_fromToken: Token, _toToken: Token, _disableMultihops: boolean, _ethersProvider: EthersProvider, _isETH: boolean);
     /**
      * Get all possible routes will only go up to 4 due to gas increase the more routes
      * you go.

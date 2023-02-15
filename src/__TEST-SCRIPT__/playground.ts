@@ -23,6 +23,7 @@ const routeTest = async () => {
       deadlineMinutes: 20,
       disableMultihops: false,
     }),
+    isETH: false,
   });
 
   const pancakeSwapPairFactory = await pancakeSwapPair.createFactory();

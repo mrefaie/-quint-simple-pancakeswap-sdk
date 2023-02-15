@@ -2,7 +2,6 @@ import { ContractCallContext, Multicall } from "ethereum-multicall";
 import { BigNumber } from "ethers";
 import { ContractContext as ERC20ContractContext } from "../../ABI/types/erc20-contract";
 import { ContractContext } from "../../common/contract-context";
-import { BNB, WBNB } from "../../common/tokens";
 import { EthersProvider } from "../../ethers-provider";
 import { AllowanceAndBalanceOf } from "./models/allowance-balance-of";
 import { Token } from "./models/token";
@@ -22,9 +21,9 @@ export class TokenFactory {
     private _tokenContractAddress: string,
     private _ethersProvider: EthersProvider
   ) {
-    if (this._tokenContractAddress === BNB.token().contractAddress) {
-      this._tokenContractAddress = WBNB.token().contractAddress;
-    }
+    // if (this._tokenContractAddress === BNB.token().contractAddress) {
+    //   this._tokenContractAddress = WBNB.token().contractAddress;
+    // }
   }
 
   /**
@@ -35,12 +34,12 @@ export class TokenFactory {
     const DECIMALS = 1;
     const NAME = 2;
 
-    if (
-      this._tokenContractAddress.toLowerCase() ===
-      BNB.token().contractAddress.toLowerCase()
-    ) {
-      return BNB.token();
-    }
+    // if (
+    //   this._tokenContractAddress.toLowerCase() ===
+    //   BNB.token().contractAddress.toLowerCase()
+    // ) {
+    //   return BNB.token();
+    // }
 
     const contractCallContext: ContractCallContext = {
       reference: "token",
@@ -108,11 +107,11 @@ export class TokenFactory {
    * Get the balance the user has of this token
    * @ethereumAddress The users ethereum address
    */
-  public async balanceOf(ethereumAddress: string): Promise<string> {
-    if (
-      this._tokenContractAddress.toLowerCase() ===
-      BNB.token().contractAddress.toLowerCase()
-    ) {
+  public async balanceOf(
+    ethereumAddress: string,
+    isETH?: boolean
+  ): Promise<string> {
+    if (isETH) {
       return await this._ethersProvider.balanceOf(ethereumAddress);
     }
 
@@ -135,7 +134,8 @@ export class TokenFactory {
    * @param ethereumAddress
    */
   public async getAllowanceAndBalanceOf(
-    ethereumAddress: string
+    ethereumAddress: string,
+    isETH: boolean = false
   ): Promise<AllowanceAndBalanceOf> {
     const ALLOWANCE = 0;
     const BALANCEOF = 1;
@@ -165,9 +165,11 @@ export class TokenFactory {
       allowance: BigNumber.from(
         results.callsReturnContext[ALLOWANCE].returnValues[0]
       ).toHexString(),
-      balanceOf: BigNumber.from(
-        results.callsReturnContext[BALANCEOF].returnValues[0]
-      ).toHexString(),
+      balanceOf: isETH
+        ? await this._ethersProvider.balanceOf(ethereumAddress)
+        : BigNumber.from(
+            results.callsReturnContext[BALANCEOF].returnValues[0]
+          ).toHexString(),
     };
   }
 }

@@ -31,6 +31,7 @@ const routeTest = () => __awaiter(void 0, void 0, void 0, function* () {
             deadlineMinutes: 20,
             disableMultihops: false,
         }),
+        isETH: false,
     });
     const pancakeSwapPairFactory = yield pancakeSwapPair.createFactory();
     try {

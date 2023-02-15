@@ -2,7 +2,6 @@ import { ContractCallContext, Multicall } from "ethereum-multicall";
 import { ContractContext } from "../../common/contract-context";
 import { ErrorCodes } from "../../common/errors/error-codes";
 import { PancakeswapError } from "../../common/errors/pancakeswap-error";
-import { BNB } from "../../common/tokens";
 import { EthersProvider } from "../../ethers-provider";
 import { Token } from "./models/token";
 
@@ -26,37 +25,37 @@ export class TokensFactory {
 
       const contractCallContexts: ContractCallContext[] = [];
       for (let i = 0; i < tokenContractAddresses.length; i++) {
-        if (
-          tokenContractAddresses[i].toLowerCase() ===
-          BNB.token().contractAddress.toLowerCase()
-        ) {
-          tokens.push(BNB.token());
-        } else {
-          const contractCallContext: ContractCallContext = {
-            reference: `token${i}`,
-            contractAddress: tokenContractAddresses[i],
-            abi: ContractContext.erc20Abi,
-            calls: [
-              {
-                reference: `symbol`,
-                methodName: "symbol",
-                methodParameters: [],
-              },
-              {
-                reference: `decimals`,
-                methodName: "decimals",
-                methodParameters: [],
-              },
-              {
-                reference: `name`,
-                methodName: "name",
-                methodParameters: [],
-              },
-            ],
-          };
+        // if (
+        //   tokenContractAddresses[i].toLowerCase() ===
+        //   BNB.token().contractAddress.toLowerCase()
+        // ) {
+        //   tokens.push(BNB.token());
+        // } else {
+        const contractCallContext: ContractCallContext = {
+          reference: `token${i}`,
+          contractAddress: tokenContractAddresses[i],
+          abi: ContractContext.erc20Abi,
+          calls: [
+            {
+              reference: `symbol`,
+              methodName: "symbol",
+              methodParameters: [],
+            },
+            {
+              reference: `decimals`,
+              methodName: "decimals",
+              methodParameters: [],
+            },
+            {
+              reference: `name`,
+              methodName: "name",
+              methodParameters: [],
+            },
+          ],
+        };
 
-          contractCallContexts.push(contractCallContext);
-        }
+        contractCallContexts.push(contractCallContext);
+        // }
       }
 
       const contractCallResults = await this._multicall.call(

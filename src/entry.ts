@@ -10,6 +10,7 @@ const handler = async () => {
       deadlineMinutes: 10,
       disableMultihops: false,
     }),
+    isETH: true,
   });
 
   const pairFactory = await pancakeSwapPair.createFactory();

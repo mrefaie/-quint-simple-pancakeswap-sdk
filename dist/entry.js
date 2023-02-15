@@ -20,6 +20,7 @@ const handler = () => __awaiter(void 0, void 0, void 0, function* () {
             deadlineMinutes: 10,
             disableMultihops: false,
         }),
+        isETH: true,
     });
     const pairFactory = yield pancakeSwapPair.createFactory();
     console.log(yield pairFactory.tradeExactOutput("1040"));

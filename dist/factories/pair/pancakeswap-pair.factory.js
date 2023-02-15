@@ -39,7 +39,7 @@ class PancakeswapPairFactory {
             ? this._pancakeswapPairFactoryContext.fromToken.wrappedToken
             : this._pancakeswapPairFactoryContext.fromToken, this._pancakeswapPairFactoryContext.toToken.wrappedToken
             ? this._pancakeswapPairFactoryContext.toToken.wrappedToken
-            : this._pancakeswapPairFactoryContext.toToken, this._pancakeswapPairFactoryContext.settings.disableMultihops, this._pancakeswapPairFactoryContext.ethersProvider);
+            : this._pancakeswapPairFactoryContext.toToken, this._pancakeswapPairFactoryContext.settings.disableMultihops, this._pancakeswapPairFactoryContext.ethersProvider, this._pancakeswapPairFactoryContext.isETH);
         this._quoteChanged$ = new rxjs_1.Subject();
     }
     /**
@@ -235,7 +235,7 @@ class PancakeswapPairFactory {
      */
     getAllowanceAndBalanceOfForFromToken() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this._fromTokenFactory.getAllowanceAndBalanceOf(this._pancakeswapPairFactoryContext.ethereumAddress);
+            return yield this._fromTokenFactory.getAllowanceAndBalanceOf(this._pancakeswapPairFactoryContext.ethereumAddress, this._pancakeswapPairFactoryContext.isETH);
         });
     }
     /**
@@ -699,7 +699,7 @@ class PancakeswapPairFactory {
      * Get the trade path
      */
     tradePath() {
-        return (0, trade_path_1.getTradePath)(this.fromToken, this.toToken);
+        return (0, trade_path_1.getTradePath)(this.fromToken, this.toToken, this._pancakeswapPairFactoryContext.isETH);
     }
     /**
      * Generates the trade datetime unix time

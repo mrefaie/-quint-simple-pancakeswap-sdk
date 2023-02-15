@@ -33,11 +33,12 @@ const chain_id_1 = require("../../enums/chain-id");
 const trade_path_2 = require("../../enums/trade-path");
 const router_direction_1 = require("./enums/router-direction");
 class PancakeswapRouterFactory {
-    constructor(_fromToken, _toToken, _disableMultihops, _ethersProvider) {
+    constructor(_fromToken, _toToken, _disableMultihops, _ethersProvider, _isETH) {
         this._fromToken = _fromToken;
         this._toToken = _toToken;
         this._disableMultihops = _disableMultihops;
         this._ethersProvider = _ethersProvider;
+        this._isETH = _isETH;
         this._multicall = new ethereum_multicall_1.Multicall({
             ethersProvider: this._ethersProvider.provider,
             tryAggregate: true,
@@ -520,7 +521,7 @@ class PancakeswapRouterFactory {
      * Get the trade path
      */
     tradePath() {
-        return (0, trade_path_1.getTradePath)(this._fromToken, this._toToken);
+        return (0, trade_path_1.getTradePath)(this._fromToken, this._toToken, this._isETH);
     }
     get allTokens() {
         return [this._fromToken, this._toToken, ...this.allMainTokens];

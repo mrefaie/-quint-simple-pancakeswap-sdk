@@ -1,5 +1,5 @@
-import { PancakeswapPairContext } from './models/pancakeswap-pair-contexts';
-import { PancakeswapPairFactory } from './pancakeswap-pair.factory';
+import { PancakeswapPairContext } from "./models/pancakeswap-pair-contexts";
+import { PancakeswapPairFactory } from "./pancakeswap-pair.factory";
 export declare class PancakeswapPair {
     private _pancakeswapPairContext;
     private _ethersProvider;

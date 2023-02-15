@@ -1,13 +1,17 @@
-import { TradePath } from '../../enums/trade-path';
-import { Token } from '../../factories/token/models/token';
-import { BNB } from '../tokens/bnb';
+import { TradePath } from "../../enums/trade-path";
+import { Token } from "../../factories/token/models/token";
+import { WBNB } from "../tokens";
 
-export function getTradePath(fromToken: Token, toToken: Token): TradePath {
-  if (fromToken.contractAddress === BNB.token().contractAddress) {
+export function getTradePath(
+  fromToken: Token,
+  toToken: Token,
+  isETH: boolean = false
+): TradePath {
+  if (fromToken.contractAddress === WBNB.token().contractAddress && isETH) {
     return TradePath.ethToErc20;
   }
 
-  if (toToken.contractAddress === BNB.token().contractAddress) {
+  if (toToken.contractAddress === WBNB.token().contractAddress && isETH) {
     return TradePath.erc20ToEth;
   }
 

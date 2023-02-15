@@ -38,7 +38,8 @@ export class PancakeswapRouterFactory {
     private _fromToken: Token,
     private _toToken: Token,
     private _disableMultihops: boolean,
-    private _ethersProvider: EthersProvider
+    private _ethersProvider: EthersProvider,
+    private _isETH: boolean
   ) {}
 
   /**
@@ -771,7 +772,7 @@ export class PancakeswapRouterFactory {
    * Get the trade path
    */
   private tradePath(): TradePath {
-    return getTradePath(this._fromToken, this._toToken);
+    return getTradePath(this._fromToken, this._toToken, this._isETH);
   }
 
   private get allTokens(): Token[] {
