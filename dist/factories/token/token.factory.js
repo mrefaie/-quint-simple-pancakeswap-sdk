@@ -22,6 +22,9 @@ class TokenFactory {
             ethersProvider: this._ethersProvider.provider,
         });
         this._erc20TokenContracy = this._ethersProvider.getContract(JSON.stringify(contract_context_1.ContractContext.erc20Abi), this._tokenContractAddress);
+        if (this._tokenContractAddress === tokens_1.BNB.token().contractAddress) {
+            this._tokenContractAddress = tokens_1.WBNB.token().contractAddress;
+        }
     }
     /**
      * Get the token details

@@ -2,7 +2,7 @@ import { ContractCallContext, Multicall } from "ethereum-multicall";
 import { BigNumber } from "ethers";
 import { ContractContext as ERC20ContractContext } from "../../ABI/types/erc20-contract";
 import { ContractContext } from "../../common/contract-context";
-import { BNB } from "../../common/tokens";
+import { BNB, WBNB } from "../../common/tokens";
 import { EthersProvider } from "../../ethers-provider";
 import { AllowanceAndBalanceOf } from "./models/allowance-balance-of";
 import { Token } from "./models/token";
@@ -21,7 +21,11 @@ export class TokenFactory {
   constructor(
     private _tokenContractAddress: string,
     private _ethersProvider: EthersProvider
-  ) {}
+  ) {
+    if (this._tokenContractAddress === BNB.token().contractAddress) {
+      this._tokenContractAddress = WBNB.token().contractAddress;
+    }
+  }
 
   /**
    * Get the token details

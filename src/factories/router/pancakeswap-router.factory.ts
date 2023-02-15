@@ -295,6 +295,11 @@ export class PancakeswapRouterFactory {
     toTokenRoutes: TokenRoutes,
     allMainRoutes: TokenRoutes[]
   ): Token[][] {
+    console.log("Debug", {
+      toTokenRoutes,
+      fromTokenRoutes,
+      allMainRoutes,
+    });
     const jointCompatibleRoutes = toTokenRoutes.pairs.toTokenPairs!.filter(
       (t) =>
         fromTokenRoutes.pairs.fromTokenPairs!.find(

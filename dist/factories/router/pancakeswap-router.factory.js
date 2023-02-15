@@ -226,6 +226,11 @@ class PancakeswapRouterFactory {
      * @param allMainRoutes All the main routes
      */
     workOutAllPossibleRoutes(fromTokenRoutes, toTokenRoutes, allMainRoutes) {
+        console.log("Debug", {
+            toTokenRoutes,
+            fromTokenRoutes,
+            allMainRoutes,
+        });
         const jointCompatibleRoutes = toTokenRoutes.pairs.toTokenPairs.filter((t) => fromTokenRoutes.pairs.fromTokenPairs.find((f) => f.contractAddress === t.contractAddress));
         const routes = [];
         if (fromTokenRoutes.pairs.fromTokenPairs.find((t) => t.contractAddress === toTokenRoutes.token.contractAddress)) {
