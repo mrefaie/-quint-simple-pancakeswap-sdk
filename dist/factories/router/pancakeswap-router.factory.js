@@ -226,19 +226,14 @@ class PancakeswapRouterFactory {
      * @param allMainRoutes All the main routes
      */
     workOutAllPossibleRoutes(fromTokenRoutes, toTokenRoutes, allMainRoutes) {
-        console.log("Debug", {
-            toTokenRoutes,
-            fromTokenRoutes,
-            allMainRoutes,
-        });
-        const jointCompatibleRoutes = toTokenRoutes.pairs.toTokenPairs.filter((t) => fromTokenRoutes.pairs.fromTokenPairs.find((f) => f.contractAddress === t.contractAddress));
+        const jointCompatibleRoutes = toTokenRoutes.pairs.toTokenPairs.filter((t) => fromTokenRoutes.pairs.fromTokenPairs.find((f) => (f === null || f === void 0 ? void 0 : f.contractAddress) === (t === null || t === void 0 ? void 0 : t.contractAddress)));
         const routes = [];
-        if (fromTokenRoutes.pairs.fromTokenPairs.find((t) => t.contractAddress === toTokenRoutes.token.contractAddress)) {
+        if (fromTokenRoutes.pairs.fromTokenPairs.find((t) => { var _a; return (t === null || t === void 0 ? void 0 : t.contractAddress) === ((_a = toTokenRoutes.token) === null || _a === void 0 ? void 0 : _a.contractAddress); })) {
             routes.push([fromTokenRoutes.token, toTokenRoutes.token]);
         }
         for (let i = 0; i < allMainRoutes.length; i++) {
             const tokenRoute = allMainRoutes[i];
-            if (jointCompatibleRoutes.find((c) => c.contractAddress === tokenRoute.token.contractAddress)) {
+            if (jointCompatibleRoutes.find((c) => { var _a; return (c === null || c === void 0 ? void 0 : c.contractAddress) === ((_a = tokenRoute.token) === null || _a === void 0 ? void 0 : _a.contractAddress); })) {
                 routes.push([
                     fromTokenRoutes.token,
                     tokenRoute.token,
@@ -246,7 +241,7 @@ class PancakeswapRouterFactory {
                 ]);
                 for (let f = 0; f < fromTokenRoutes.pairs.fromTokenPairs.length; f++) {
                     const fromSupportedToken = fromTokenRoutes.pairs.fromTokenPairs[f];
-                    if (tokenRoute.pairs.toTokenPairs.find((pair) => pair.contractAddress === fromSupportedToken.contractAddress)) {
+                    if (tokenRoute.pairs.toTokenPairs.find((pair) => (pair === null || pair === void 0 ? void 0 : pair.contractAddress) === (fromSupportedToken === null || fromSupportedToken === void 0 ? void 0 : fromSupportedToken.contractAddress))) {
                         const workedOutFromRoute = [
                             fromTokenRoutes.token,
                             fromSupportedToken,
@@ -261,7 +256,7 @@ class PancakeswapRouterFactory {
                 }
                 for (let f = 0; f < toTokenRoutes.pairs.toTokenPairs.length; f++) {
                     const toSupportedToken = toTokenRoutes.pairs.toTokenPairs[f];
-                    if (tokenRoute.pairs.fromTokenPairs.find((pair) => pair.contractAddress === toSupportedToken.contractAddress)) {
+                    if (tokenRoute.pairs.fromTokenPairs.find((pair) => (pair === null || pair === void 0 ? void 0 : pair.contractAddress) === (toSupportedToken === null || toSupportedToken === void 0 ? void 0 : toSupportedToken.contractAddress))) {
                         const workedOutToRoute = [
                             fromTokenRoutes.token,
                             tokenRoute.token,
