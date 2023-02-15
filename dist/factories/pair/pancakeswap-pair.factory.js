@@ -35,7 +35,11 @@ class PancakeswapPairFactory {
         this._fromTokenFactory = new token_factory_1.TokenFactory(this._pancakeswapPairFactoryContext.fromToken.contractAddress, this._pancakeswapPairFactoryContext.ethersProvider);
         this._pancakeswapRouterContractFactory = new pancakeswap_router_contract_factory_1.PancakeswapRouterContractFactory(this._pancakeswapPairFactoryContext.ethersProvider);
         this._pancakeswapPairFactory = new pancakeswap_pair_contract_factory_1.PancakeswapPairContractFactory(this._pancakeswapPairFactoryContext.ethersProvider);
-        this._pancakeswapRouterFactory = new pancakeswap_router_factory_1.PancakeswapRouterFactory(this._pancakeswapPairFactoryContext.fromToken, this._pancakeswapPairFactoryContext.toToken, this._pancakeswapPairFactoryContext.settings.disableMultihops, this._pancakeswapPairFactoryContext.ethersProvider);
+        this._pancakeswapRouterFactory = new pancakeswap_router_factory_1.PancakeswapRouterFactory(this._pancakeswapPairFactoryContext.fromToken.wrappedToken
+            ? this._pancakeswapPairFactoryContext.fromToken.wrappedToken
+            : this._pancakeswapPairFactoryContext.fromToken, this._pancakeswapPairFactoryContext.toToken.wrappedToken
+            ? this._pancakeswapPairFactoryContext.toToken.wrappedToken
+            : this._pancakeswapPairFactoryContext.toToken, this._pancakeswapPairFactoryContext.settings.disableMultihops, this._pancakeswapPairFactoryContext.ethersProvider);
         this._quoteChanged$ = new rxjs_1.Subject();
     }
     /**

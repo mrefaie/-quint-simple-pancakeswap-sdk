@@ -12,5 +12,12 @@ export declare class BNB {
         decimals: number;
         symbol: string;
         name: string;
+        wrappedToken: {
+            chainId: ChainId;
+            contractAddress: string;
+            decimals: number;
+            symbol: string;
+            name: string;
+        };
     };
 }

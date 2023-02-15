@@ -39,8 +39,12 @@ export class PancakeswapPairFactory {
   );
 
   private _pancakeswapRouterFactory = new PancakeswapRouterFactory(
-    this._pancakeswapPairFactoryContext.fromToken,
-    this._pancakeswapPairFactoryContext.toToken,
+    this._pancakeswapPairFactoryContext.fromToken.wrappedToken
+      ? this._pancakeswapPairFactoryContext.fromToken.wrappedToken
+      : this._pancakeswapPairFactoryContext.fromToken,
+    this._pancakeswapPairFactoryContext.toToken.wrappedToken
+      ? this._pancakeswapPairFactoryContext.toToken.wrappedToken
+      : this._pancakeswapPairFactoryContext.toToken,
     this._pancakeswapPairFactoryContext.settings.disableMultihops,
     this._pancakeswapPairFactoryContext.ethersProvider
   );

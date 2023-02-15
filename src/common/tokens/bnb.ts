@@ -1,4 +1,5 @@
 import { ChainId } from "../../enums/chain-id";
+import { WBNB } from "./wbnb";
 
 /**
  * BNB token context
@@ -14,6 +15,7 @@ export class BNB {
       decimals: 18,
       symbol: "BNB",
       name: "Binance Chain Native Token",
+      wrappedToken: WBNB.token(),
     };
   }
 }

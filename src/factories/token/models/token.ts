@@ -1,4 +1,4 @@
-import { ChainId } from '../../../enums/chain-id';
+import { ChainId } from "../../../enums/chain-id";
 
 export interface Token {
   chainId: ChainId;
@@ -6,4 +6,5 @@ export interface Token {
   decimals: number;
   symbol: string;
   name: string;
+  wrappedToken?: Token;
 }
